@@ -1,0 +1,17 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: cms-acme
+
+aws:
+  region: ${AWS_REGION}
+  dynamodb:
+    endpoint: ${AWS_DYNAMODB_ENDPOINT:https://amazon.com}
+    secretKey: ${AWS_SECRET_KEY}
+    accessKey: ${AWS_ACCESS_KEY}
+
+
+
+
+
