@@ -5,11 +5,11 @@ spring:
     name: cms-acme
 
 aws:
-  region: ${AWS_REGION}
+  region: ${AWS_REGION:A}
   dynamodb:
     endpoint: ${AWS_DYNAMODB_ENDPOINT:https://amazon.com}
-    secretKey: ${AWS_SECRET_KEY}
-    accessKey: ${AWS_ACCESS_KEY}
+    secretKey: ${AWS_SECRET_KEY:B}
+    accessKey: ${AWS_ACCESS_KEY:C}
 
 
 
