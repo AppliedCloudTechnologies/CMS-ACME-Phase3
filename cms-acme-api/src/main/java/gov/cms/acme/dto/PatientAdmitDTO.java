@@ -1,6 +1,8 @@
 package gov.cms.acme.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.cms.acme.entity.AdmitStatus;
 import gov.cms.acme.entity.DisasterType;
 import lombok.AllArgsConstructor;
@@ -8,23 +10,29 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PatientAdmitDTO extends AuditEntityDTO {
 
-    @NotBlank(message = "PatientId Required.")
-    private String patientId;
-    @NotBlank(message = "ProviderId Required.")
-    private String providerId;
-    private Date admitDate;
-    
+    @NotBlank(message = "PatientId Required!")
+    @JsonProperty(value = "pat_id")
+    private String patId;
+    @NotBlank(message = "ProviderId Required!")
+    @JsonProperty(value = "prov_id")
+    private String provId;
+    @JsonProperty(value = "admit_date")
+    private String admitDate;
+
+    @JsonProperty(value = "disaster_type")
     private DisasterType disasterType;
     private AdmitStatus status;
-    private Date statusUpdateDate;
-    private Date dateOfDeath;
+    @JsonProperty(value = "status_update_date")
+    private String statusUpdateDate;
+    @JsonProperty(value = "date_of_death")
+    private String dateOfDeath;
     private String notes;
 
 }

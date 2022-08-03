@@ -1,5 +1,6 @@
 package gov.cms.acme.service.impl;
 
+import gov.cms.acme.utils.Utils;
 import gov.cms.acme.dao.PatientAdmitDAO;
 import gov.cms.acme.dto.PatientAdmitDTO;
 import gov.cms.acme.dto.mapper.PatientAdmitMapper;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -24,6 +26,8 @@ public class PatientAdmitServiceImpl implements PatientAdmitService {
     @Override
     public PatientAdmitDTO updatePatientAdmit(PatientAdmitDTO patientAdmitDTO){
         log.info("PatientAdmitServiceImpl#updatePatientAdmit");
+        patientAdmitDTO.setStatusUpdateDate(Utils.formatDate(new Date(),null));
+        patientAdmitDTO.setModifiedTimestamp(Utils.formatDate(new Date(),null));
         PatientAdmit patientAdmit = patientAdmitDAO.updatePatientAdmitRecord(patientAdmitMapper.toEntity(patientAdmitDTO));
         return patientAdmitMapper.toDto(patientAdmit);
     }

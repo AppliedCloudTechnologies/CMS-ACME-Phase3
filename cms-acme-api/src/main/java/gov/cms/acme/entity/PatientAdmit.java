@@ -12,23 +12,22 @@ import java.util.Date;
 @DynamoDBTable(tableName = "patient-admit")
 public class PatientAdmit extends AuditEntity {
 
-    @DynamoDBHashKey
-    private String patientId;
+    @DynamoDBHashKey(attributeName = "pat_id")
+    private String patId;
 
-    @DynamoDBRangeKey
-    private String providerId;
+    @DynamoDBRangeKey(attributeName = "prov_id")
+    private String provId;
 
-//    @DynamoDBIgnore
-    @DynamoDBAttribute
-    private Date admitDate;
-    @DynamoDBAttribute
+    @DynamoDBAttribute(attributeName = "admit_date")
+    private String admitDate;
+    @DynamoDBAttribute(attributeName = "disaster_type")
     private String disasterType;
     @DynamoDBAttribute
     private String status;
-    @DynamoDBAttribute
-    private Date statusUpdateDate;
-    @DynamoDBAttribute
-    private Date dateOfDeath;
+    @DynamoDBAttribute(attributeName = "status_update_date")
+    private String statusUpdateDate;
+    @DynamoDBAttribute(attributeName = "date_of_death")
+    private String dateOfDeath;
     @DynamoDBAttribute
     private String notes;
 

@@ -44,13 +44,13 @@ public class PatientAdmitServiceTest {
     public void init(){
         patientAdmitService=new PatientAdmitServiceImpl(patientAdmitDAO, patientAdmitMapper);
         patientAdmitDTO=new PatientAdmitDTO();
-        patientAdmitDTO.setPatientId("1111");
-        patientAdmitDTO.setProviderId("2222");
-        patientAdmitDTO.setAdmitDate(new Date());
+        patientAdmitDTO.setPatId("1111");
+        patientAdmitDTO.setProvId("2222");
+        patientAdmitDTO.setAdmitDate(new Date().toString());
         patientAdmitDTO.setNotes("This is Note.");
         patientAdmitDTO.setStatus(AdmitStatus.DECEASED);
         patientAdmitDTO.setDisasterType(DisasterType.HURRICANE);
-        patientAdmitDTO.setStatusUpdateDate(new Date());
+        patientAdmitDTO.setStatusUpdateDate(new Date().toString());
 
     }
 
@@ -63,8 +63,8 @@ public class PatientAdmitServiceTest {
         PatientAdmitDTO patientAdmitDTO = patientAdmitService.updatePatientAdmit(this.patientAdmitDTO);
 
         assertThat(patientAdmitDTO).isNotNull();
-        assertThat(patientAdmitDTO.getPatientId()).isEqualTo(this.patientAdmitDTO.getPatientId());
-        assertThat(patientAdmitDTO.getProviderId()).isEqualTo(this.patientAdmitDTO.getProviderId());
+        assertThat(patientAdmitDTO.getPatId() ).isEqualTo(this.patientAdmitDTO.getPatId());
+        assertThat(patientAdmitDTO.getProvId()).isEqualTo(this.patientAdmitDTO.getProvId());
 
         verify(patientAdmitDAO,times(1)).updatePatientAdmitRecord(any(PatientAdmit.class));
         verify(patientAdmitMapper,times(1)).toEntity(any(PatientAdmitDTO.class));
@@ -77,14 +77,14 @@ public class PatientAdmitServiceTest {
         PatientAdmit patientAdmit = patientAdmitMapper.toEntity(patientAdmitDTO);
         when(patientAdmitDAO.getPatientAdmitRecord(anyString(),anyString())).thenReturn(patientAdmit);
 
-        PatientAdmitDTO patientAdmitDetail = patientAdmitService.getPatientAdmitDetail(patientAdmitDTO.getPatientId(), patientAdmitDTO.getProviderId());
+        PatientAdmitDTO patientAdmitDetail = patientAdmitService.getPatientAdmitDetail(patientAdmitDTO.getPatId(), patientAdmitDTO.getProvId());
 
         assertThat(patientAdmitDetail).isNotNull();
-        assertThat(patientAdmitDetail.getPatientId()).isNotBlank();
-        assertThat(patientAdmitDetail.getProviderId()).isNotBlank();
+        assertThat(patientAdmitDetail.getPatId()).isNotBlank();
+        assertThat(patientAdmitDetail.getProvId()).isNotBlank();
         assertThat(patientAdmitDetail).isEqualTo(patientAdmitDTO);
-        assertThat(patientAdmitDetail.getPatientId()).isEqualTo(patientAdmitDTO.getPatientId());
-        assertThat(patientAdmitDetail.getProviderId()).isEqualTo(patientAdmitDTO.getProviderId());
+        assertThat(patientAdmitDetail.getPatId()).isEqualTo(patientAdmitDTO.getPatId());
+        assertThat(patientAdmitDetail.getProvId()).isEqualTo(patientAdmitDTO.getProvId());
 
         verify(patientAdmitDAO,times(1)).getPatientAdmitRecord(anyString(),anyString());
         verify(patientAdmitMapper,times(1)).toDto(any(PatientAdmit.class));

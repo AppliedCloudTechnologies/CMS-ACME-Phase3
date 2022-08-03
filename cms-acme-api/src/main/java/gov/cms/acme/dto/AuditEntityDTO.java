@@ -1,5 +1,6 @@
 package gov.cms.acme.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,9 +9,13 @@ import java.util.Date;
 @Data
 public class AuditEntityDTO {
 
+    @JsonProperty(value = "created_by")
     private String createdBy;
-    private Date createdAt;
-    private String updatedBy;
-    private Date updatedAt;
+    @JsonProperty(value = "created_timestamp")
+    private String createdTimestamp;
+    @JsonProperty(value = "modified_by")
+    private String modifiedBy;
+    @JsonProperty(value = "modified_timestamp")
+    private String modifiedTimestamp;
 
 }

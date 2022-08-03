@@ -1,9 +1,7 @@
 package gov.cms.acme.dao;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import gov.cms.acme.entity.PatientAdmit;
@@ -24,16 +22,17 @@ public class PatientAdmitDAO {
 
 
     public PatientAdmit updatePatientAdmitRecord(PatientAdmit patientAdmit){
-        log.info("Going to save PatientAdmit record!");
-
-        DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression();
-        Map expected = new HashMap();
-        expected.put("patientId", new ExpectedAttributeValue(new AttributeValue(patientAdmit.getPatientId())).withExists(true));
-        expected.put("providerId", new ExpectedAttributeValue(new AttributeValue(patientAdmit.getProviderId())).withExists(true));
-
+        log.info("PatientAdmitDAO#updatePatientAdmitRecord");
         try {
+            DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression();
+            Map expected = new HashMap();
+            expected.put("pat_id", new ExpectedAttributeValue(new AttributeValue(patientAdmit.getPatId())).withExists(true));
+            expected.put("prov_id", new ExpectedAttributeValue(new AttributeValue(patientAdmit.getProvId())).withExists(true));
+
+            log.info("Going to save PatientAdmit record!");
             saveExpression.setExpected(expected);
-            mapper.save(patientAdmit, saveExpression);
+            mapper.save(patientAdmit, saveExpression, new DynamoDBMapperConfig(DynamoDBMapperConfig.SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES));
+            log.info("PatientAdmit saved successfully!");
             return patientAdmit;
         }catch (AmazonServiceException exception) {
             log.error("Error in updating PatientAdmit ",exception);
@@ -63,10 +62,12 @@ public class PatientAdmitDAO {
             log.debug("PatientId: {}",patientId);
             Map<String, AttributeValue> eav = new HashMap<>();
             eav.put(":val1", new AttributeValue().withS(patientId));
-            DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-                    .withFilterExpression("patientId = :val1").withExpressionAttributeValues(eav);
-            List<PatientAdmit> scanResult = mapper.scan(PatientAdmit.class, scanExpression);
-            return scanResult;
+
+            DynamoDBQueryExpression<PatientAdmit> queryExpression = new DynamoDBQueryExpression<PatientAdmit>()
+                    .withKeyConditionExpression("pat_id = :val1").withExpressionAttributeValues(eav);
+
+            List<PatientAdmit> latestReplies = mapper.query(PatientAdmit.class, queryExpression);
+            return latestReplies;
         }catch (AmazonServiceException exception) {
             log.error("Error while fetching PatientAdmit for a patient ",exception);
             String errorResponse = new String(exception.getRawResponse());

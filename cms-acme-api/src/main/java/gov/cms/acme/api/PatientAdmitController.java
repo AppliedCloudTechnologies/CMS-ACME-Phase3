@@ -1,6 +1,7 @@
 package gov.cms.acme.api;
 
 
+import gov.cms.acme.utils.Utils;
 import gov.cms.acme.constants.Constants;
 import gov.cms.acme.dto.CmsResponse;
 import gov.cms.acme.dto.PatientAdmitDTO;
@@ -12,11 +13,12 @@ import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -33,7 +35,7 @@ public class PatientAdmitController {
                                                        @RequestBody @Valid PatientAdmitDTO patientAdmitDTO){
       log.info("PatientAdmitController#updateRecord");
       PatientAdmitDTO result= patientAdmitService.updatePatientAdmit(patientAdmitDTO);
-      return new CmsResponse<>(result, Constants.SUCCESS,false);
+      return Utils.toResponse(null,Constants.SUCCESS,"Record updated Successfully!");
    }
 
    @ApiOperation(value = "To fetch PatientAdmit record based on patientId and providerId")
@@ -42,7 +44,7 @@ public class PatientAdmitController {
                                                                    @ApiParam(value = "Patient's Id") @PathVariable(value = Constants.PATIENT_ID) String patientId){
       log.info("PatientAdmitController#getAllForPatientAndProvider");
       PatientAdmitDTO patientAdmitDTO= patientAdmitService.getPatientAdmitDetail(patientId, providerId);
-      return new CmsResponse<>(patientAdmitDTO, Constants.SUCCESS,false);
+      return Utils.toResponse(patientAdmitDTO,Constants.SUCCESS, Objects.isNull(patientAdmitDTO)?"Record not found!":"Record found!");
 
    }
 
@@ -51,7 +53,7 @@ public class PatientAdmitController {
    public CmsResponse<List<PatientAdmitDTO>> getPatientAdmitByPatientId(@ApiParam(value = "Patient's Id") @PathVariable(value = Constants.PATIENT_ID) String patientId){
       log.info("PatientAdmitController#getPatientAdmitByExp");
       List<PatientAdmitDTO> patientAdmitDTO= patientAdmitService.getPatientAdmitByExp(patientId);
-      return new CmsResponse<>(patientAdmitDTO, Constants.SUCCESS,false);
+      return Utils.toResponse(patientAdmitDTO, Constants.SUCCESS,Objects.isNull(patientAdmitDTO)||patientAdmitDTO.isEmpty() ?"Record not found!":"Record found!");
    }
 
 
@@ -59,7 +61,19 @@ public class PatientAdmitController {
    @ResponseStatus(HttpStatus.BAD_REQUEST)
    public CmsResponse handleException(CmsAcmeException ex){
       log.error("Exception occurred- ",ex);
-      return new CmsResponse(ex.getErrorCode(), Constants.ERROR, true);
+      String errorCode = ex.getErrorCode();
+      String description= switch (errorCode){
+         case "ConditionalCheckFailedException" -> "Invalid patientId or providerId!";
+         default -> ex.getLocalizedMessage();
+      };
+      return Utils.toResponse(null, Constants.ERROR, description);
    }
 
+
+   @ExceptionHandler(MethodArgumentNotValidException.class)
+   @ResponseStatus(HttpStatus.BAD_REQUEST)
+   public CmsResponse handleException(MethodArgumentNotValidException ex){
+      log.error("Exception occurred- ",ex);
+      return Utils.toResponse(null, Constants.ERROR, ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+   }
 }

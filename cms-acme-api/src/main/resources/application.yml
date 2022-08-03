@@ -12,6 +12,17 @@ aws:
     accessKey: ${AWS_ACCESS_KEY:C}
 
 
+info:
+  app:
+    name: ${spring.application.name}
+    port: ${server.port}
+    description: This application is for patientAdmit process.
+    version: 0.0.1
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics
 
 
