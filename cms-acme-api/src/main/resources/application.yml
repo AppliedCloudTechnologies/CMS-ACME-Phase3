@@ -24,7 +24,7 @@ info:
   app:
     name: ${spring.application.name}
     port: ${server.port}
-    description: This application is for patientAdmit process.
+    description: This application is for PatientStatus process.
     version: 0.0.1
 
 management:

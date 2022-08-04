@@ -15,7 +15,7 @@ import java.util.*;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class PatientAdmitDAO {
+public class PatientStatusDAO {
 
     private final DynamoDBMapper mapper;
 
@@ -24,20 +24,26 @@ public class PatientAdmitDAO {
      * @param patientStatus
      * @return PatientStatus.
      */
-    public PatientStatus updatePatientAdmitRecord(PatientStatus patientStatus){
-        log.info("PatientAdmitDAO#updatePatientAdmitRecord");
+    public String updatePatientStatusRecord(PatientStatus patientStatus){
+        log.info("PatientStatusDAO#updatePatientStatusRecord");
+        String status=null;
         try {
             log.info("Going to save PatientAdmit record!");
-//            int patientAdmitOutCount = getPatientAdmitOut(patientStatus.getPatId(), patientStatus.getProvNbr());
-//            log.info("patientAdmitOutCount: {}",patientAdmitOutCount);
+            int patientAdmitOutCount = getPatientAdmitOut(patientStatus.getPatId(), patientStatus.getProvNbr());
+            log.info("patientAdmitOutCount: {}",patientAdmitOutCount);
 //          config for not to update null attributes.
-            DynamoDBMapperConfig config = DynamoDBMapperConfig.builder()
-                    .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES)
-                    .build();
-//          updating records.
-            mapper.save(patientStatus, config);
-            log.info("PatientAdmit saved successfully!");
-            return patientStatus;
+            if (patientAdmitOutCount>0){
+                DynamoDBMapperConfig config = DynamoDBMapperConfig.builder()
+                        .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES)
+                        .build();
+//              updating records.
+                mapper.save(patientStatus, config);
+                status="PatientStatus saved successfully!";
+            }else{
+                status="Invalid facilityId or patientId!";
+            }
+            log.info(status);
+            return status;
         }catch (AmazonServiceException exception) {
             log.error("Error in updating PatientAdmit ",exception);
             String errorResponse = new String(exception.getRawResponse());
@@ -52,8 +58,8 @@ public class PatientAdmitDAO {
      * @param providerId
      * @return  PatientStatus based on patientId and providerId.
      */
-    public PatientStatus getPatientAdmitRecord(String patientId, String providerId){
-        log.info("PatientAdmitDAO#getPatientRecord");
+    public PatientStatus getPatientStatusRecord(String patientId, String providerId){
+        log.info("PatientStatusDAO#getPatientStatusRecord");
         try {
             log.debug("PatientId: {}, ProviderId: {}", patientId, providerId);
 //          Fetching record using DynamoDBMapper.load method based on patientId and providerId
@@ -72,8 +78,8 @@ public class PatientAdmitDAO {
      * @param patientId
      * @return List of PatientStatus for a patient.
      */
-    public List<PatientStatus> getPatientAdmitByExp(String patientId){
-        log.info("PatientAdmitDAO#getPatientAdmitByExp");
+    public List<PatientStatus> getPatientStatusByExp(String patientId){
+        log.info("PatientStatusDAO#getPatientStatusByExp");
         try {
             log.debug("PatientId: {}",patientId);
 //          creating search criteria using queryExpression to fetch records.
@@ -109,7 +115,7 @@ public class PatientAdmitDAO {
             DynamoDBQueryExpression<PatientAdmitOut> queryExpression = new DynamoDBQueryExpression<PatientAdmitOut>()
                     .withIndexName("pat_id")
                     .withConsistentRead(false)
-                    .withFilterExpression("pat_id = :patientId and prov_nbr = :provNbr")
+                    .withKeyConditionExpression("pat_id = :patientId and prov_nbr = :provNbr")
                     .withExpressionAttributeValues(eav);
 
 //          fetching record's count.
@@ -119,7 +125,7 @@ public class PatientAdmitDAO {
             log.error("Error while fetching PatientAdmitOut's count ",exception);
             String errorResponse = new String(exception.getRawResponse());
             log.debug("ErrorResponse: {}",errorResponse);
-//            throw new CmsAcmeException(exception.getErrorMessage(), exception.getErrorCode(), errorResponse);
+            throw new CmsAcmeException(exception.getErrorMessage(), exception.getErrorCode(), errorResponse);
         }
         return recordCount;
     }

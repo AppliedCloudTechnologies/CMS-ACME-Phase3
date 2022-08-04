@@ -20,7 +20,7 @@ public class PatientStatusDTO extends AuditEntityDTO {
     @NotBlank(message = "PatientId is Required!")
     @JsonProperty(value = "pat_id")
     private String patId;
-    @NotBlank(message = "ProviderNbr is Required!")
+//    @NotBlank(message = "ProviderNbr is Required!")
     @JsonProperty(value = "prov_nbr")
     private String provNbr;
     @JsonProperty(value = "admit_date")

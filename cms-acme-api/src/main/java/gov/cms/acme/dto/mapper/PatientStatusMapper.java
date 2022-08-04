@@ -5,6 +5,6 @@ import gov.cms.acme.entity.PatientStatus;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface PatientAdmitMapper extends EntityMapper<PatientStatus, PatientStatusDTO> {
+public interface PatientStatusMapper extends EntityMapper<PatientStatus, PatientStatusDTO> {
 
 }

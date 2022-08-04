@@ -1,9 +1,9 @@
 # CMS-ACME API documentation
-API documentation for CMS-ACME PatientAdmit service.
+API documentation for CMS-ACME PatientStatus service.
 
 **License:** CMS-ACME license.
 
-### /api/patient-admit
+### /api/patient-status
 
 #### PUT
 ##### Description
@@ -19,13 +19,17 @@ To update PatientStatus record.
 ### /info/status
 
 #### GET
+##### Description
+
+To the status of service.
+
 ##### Responses
 
 | Code | Description |
 | ---- | ----------- |
-| 200 | OK |
+| default | status: up |
 
-### /api/patient-admit/{prov_nbr}/{patientId}
+### /api/patient-status/{prov_nbr}/{patientId}
 
 #### GET
 ##### Description
@@ -45,7 +49,7 @@ To fetch PatientStatus record based on patientId and providerId.
 | ---- | ----------- |
 | default | Returns PatientStatus matching provNbr and patientId |
 
-### /api/patient-admit/{patientId}
+### /api/patient-status/{patientId}
 
 #### GET
 ##### Description
@@ -79,13 +83,13 @@ PatientStatus request object.
 | modified_by | string |  | No |
 | modified_timestamp | string |  | No |
 | pat_id | string |  | Yes |
-| prov_nbr | string |  | Yes |
+| prov_nbr | string |  | No |
 | admit_date | string |  | No |
 | disaster_type | string | _Enum:_ `"EARTHQUAKE"`, `"TORNADO"`, `"HURRICANE"`, `"PENDAMIC"`, `"OTHER"` | No |
 | status_update_date | string |  | No |
 | date_of_death | string |  | No |
 
-#### CmsResponse
+#### CmsResponseObject
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |

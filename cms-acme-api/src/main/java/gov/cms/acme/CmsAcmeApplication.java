@@ -7,7 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @OpenAPIDefinition(info=@Info(title="CMS-ACME API documentation",
-		description = "API documentation for CMS-ACME PatientAdmit service.",
+		description = "API documentation for CMS-ACME PatientStatus service.",
 		license = @License(name = "CMS-ACME license.")))
 @SpringBootApplication
 public class CmsAcmeApplication {
