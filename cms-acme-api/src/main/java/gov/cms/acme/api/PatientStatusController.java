@@ -37,7 +37,7 @@ public class PatientStatusController {
    @PutMapping
    @Operation(description = "To update PatientStatus record.")
    @ApiResponse(description = "SUCCESS or ERROR")
-   public CmsResponse<?> updateRecord(@Parameter(description = "PatientStatus request object.",name = "patientStatusDTO")
+   public CmsResponse<?> updateRecord(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "PatientStatusDTO Object.")
                                     @RequestBody @Valid PatientStatusDTO patientStatusDTO){
       log.info("PatientStatusController#updateRecord");
       log.debug("UserGroup : {}", SecurityUtil.getUserGroup());

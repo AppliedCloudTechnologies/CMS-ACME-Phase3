@@ -7,8 +7,10 @@ API documentation for CMS-ACME PatientStatus service.
 
 #### PUT
 ##### Description
-
 To update PatientStatus record.
+
+####RequestBody
+PatientStatusDTO Object.
 
 ##### Responses
 
@@ -72,8 +74,6 @@ To fetch List of PatientStatus for a particular patient.
 
 #### PatientStatusDTO
 
-PatientStatus request object.
-
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | status | string | _Enum:_ `"UNAFFECTED"`, `"INJURED"`, `"ILL_IN_FACILITY"`, `"ILL_NOT_IN_FACILITY"`, `"DECEASED"`, `"ISOLATED"` | No |
@@ -107,7 +107,7 @@ PatientStatus request object.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| data | object | PatientStatus request object. | No |
+| data | object |  | No |
 | status | object |  | No |
 
 #### CmsResponseListPatientStatusDTO
