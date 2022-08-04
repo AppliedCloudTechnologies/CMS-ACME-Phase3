@@ -1,0 +1,14 @@
+
+version: "3.7"
+services:
+  my-app:
+    build: ../../../
+    image: 656862533084.dkr.ecr.us-east-1.amazonaws.com/my-app:0.1.0
+    ports:
+    - 8080:8080
+    env_file:
+    - hidden.env
+    labels:
+      aws.ecs.fargate.deploy: 1
+    #x-fargate-secrets:
+      #KEY: value
