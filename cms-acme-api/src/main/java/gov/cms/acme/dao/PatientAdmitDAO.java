@@ -28,10 +28,12 @@ public class PatientAdmitDAO {
         log.info("PatientAdmitDAO#updatePatientAdmitRecord");
         try {
             log.info("Going to save PatientAdmit record!");
-            int patientAdmitOutCount = getPatientAdmitOut(patientStatus.getPatId(), patientStatus.getProvNbr());
-            log.info("patientAdmitOutCount: {}",patientAdmitOutCount);
+//            int patientAdmitOutCount = getPatientAdmitOut(patientStatus.getPatId(), patientStatus.getProvNbr());
+//            log.info("patientAdmitOutCount: {}",patientAdmitOutCount);
 //          config for not to update null attributes.
-            DynamoDBMapperConfig config = DynamoDBMapperConfig.builder().withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES).build();
+            DynamoDBMapperConfig config = DynamoDBMapperConfig.builder()
+                    .withSaveBehavior(DynamoDBMapperConfig.SaveBehavior.UPDATE_SKIP_NULL_ATTRIBUTES)
+                    .build();
 //          updating records.
             mapper.save(patientStatus, config);
             log.info("PatientAdmit saved successfully!");

@@ -6,14 +6,10 @@ import gov.cms.acme.dto.CmsResponse;
 import gov.cms.acme.dto.PatientStatusDTO;
 import gov.cms.acme.exception.CmsAcmeException;
 import gov.cms.acme.service.PatientAdmitService;
+import gov.cms.acme.utils.SecurityUtil;
 import gov.cms.acme.utils.Utils;
-//import io.swagger.annotations.Api;
-//import io.swagger.annotations.ApiOperation;
-//import io.swagger.annotations.ApiParam;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -40,10 +37,18 @@ public class PatientAdmitController {
    @PutMapping
    @Operation(description = "To update PatientStatus record.")
    @ApiResponse(description = "SUCCESS or ERROR")
-   public CmsResponse updateRecord(@Parameter(description = "PatientStatus request object.",name = "patientStatusDTO")
+   public CmsResponse<?> updateRecord(@Parameter(description = "PatientStatus request object.",name = "patientStatusDTO")
                                     @RequestBody @Valid PatientStatusDTO patientStatusDTO){
       log.info("PatientAdmitController#updateRecord");
+      log.debug("UserGroup : {}", SecurityUtil.getUserGroup());
+      Map<String, Object> claims = SecurityUtil.getUserClaims();
+      String facilityId = (String) claims.get("custom:facility_id");
+      if(Objects.isNull(facilityId) || facilityId.isBlank()) {
+         throw new CmsAcmeException("User Not Allowed to Update Patient Status");
+      }
+      patientStatusDTO.setProvNbr(facilityId);
       PatientStatusDTO result= patientAdmitService.updatePatientAdmit(patientStatusDTO);
+      log.debug("Update Patient Status : {}", result);
       return Utils.toResponse(null,Constants.SUCCESS,"Record updated Successfully!");
    }
 

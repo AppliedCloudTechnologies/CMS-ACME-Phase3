@@ -4,6 +4,14 @@ spring:
   application:
     name: cms-acme
 
+# Spring Cloud Security
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          jwk-set-uri: ${JWT_JWKS_URI:https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HwRgngsNx/.well-known/jwks.json}
+
+
 aws:
   region: ${AWS_REGION:us-east-1}
   dynamodb:
@@ -24,5 +32,8 @@ management:
     web:
       exposure:
         include: info, health, metrics
-
-
+logging:
+  level:
+    root: info
+    org.springframework: debug
+    gov.cms.acme: debug
