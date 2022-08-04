@@ -35,3 +35,4 @@ ecsFargateService.iml
 .terraform/terraform.tfstate
 .terraform/*
 templates/.terraform.lock.hcl
+refactoringIAC/.terraform/terraform.tfstate
