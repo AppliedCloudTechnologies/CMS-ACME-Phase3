@@ -1,25 +1,19 @@
 package gov.cms.acme;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@OpenAPIDefinition(info=@Info(title="CMS-ACME API documentation",
+		description = "API documentation for CMS-ACME PatientAdmit service.",
+		license = @License(name = "CMS-ACME license.")))
 @SpringBootApplication
-public class CmsAcmeApplication implements CommandLineRunner {
+public class CmsAcmeApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CmsAcmeApplication.class, args);
 	}
 
-	@Autowired
-	AmazonDynamoDB amazonDynamoDB;
-
-	@Override
-	public void run(String... args) throws Exception {
-		ListTablesResult listTablesResult = amazonDynamoDB.listTables();
-		listTablesResult.getTableNames().forEach(System.out::println);
-	}
 }

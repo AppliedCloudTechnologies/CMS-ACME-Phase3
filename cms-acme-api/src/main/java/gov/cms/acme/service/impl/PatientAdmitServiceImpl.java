@@ -1,10 +1,10 @@
 package gov.cms.acme.service.impl;
 
+import gov.cms.acme.dto.PatientStatusDTO;
+import gov.cms.acme.entity.PatientStatus;
 import gov.cms.acme.utils.Utils;
 import gov.cms.acme.dao.PatientAdmitDAO;
-import gov.cms.acme.dto.PatientAdmitDTO;
 import gov.cms.acme.dto.mapper.PatientAdmitMapper;
-import gov.cms.acme.entity.PatientAdmit;
 import gov.cms.acme.service.PatientAdmitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,27 +23,44 @@ public class PatientAdmitServiceImpl implements PatientAdmitService {
     private final PatientAdmitDAO patientAdmitDAO;
     private final PatientAdmitMapper patientAdmitMapper;
 
+    /**
+     * to update patientStatus.
+     * @param patientStatusDTO
+     * @return
+     */
     @Override
-    public PatientAdmitDTO updatePatientAdmit(PatientAdmitDTO patientAdmitDTO){
+    public PatientStatusDTO updatePatientAdmit(PatientStatusDTO patientStatusDTO){
         log.info("PatientAdmitServiceImpl#updatePatientAdmit");
-        patientAdmitDTO.setStatusUpdateDate(Utils.formatDate(new Date(),null));
-        patientAdmitDTO.setModifiedTimestamp(Utils.formatDate(new Date(),null));
-        PatientAdmit patientAdmit = patientAdmitDAO.updatePatientAdmitRecord(patientAdmitMapper.toEntity(patientAdmitDTO));
-        return patientAdmitMapper.toDto(patientAdmit);
+//      setting current datetime to statusUpdateDate and ModifiedTimestamp.
+        patientStatusDTO.setStatusUpdateDate(Utils.formatDate(new Date(),null));
+        patientStatusDTO.setModifiedTimestamp(Utils.formatDate(new Date(),null));
+        PatientStatus patientStatus = patientAdmitDAO.updatePatientAdmitRecord(patientAdmitMapper.toEntity(patientStatusDTO));
+        return patientAdmitMapper.toDto(patientStatus);
     }
 
+    /**
+     * To fetch PatientStatus for given patientId and providerId
+     * @param patientId
+     * @param providerId
+     * @return PatientStatus matching given patientId and ProviderId.
+     */
     @Override
-    public PatientAdmitDTO getPatientAdmitDetail(String patientId, String providerId) {
+    public PatientStatusDTO getPatientAdmitDetail(String patientId, String providerId) {
         log.info("PatientAdmitServiceImpl#getPatientAdmitDetail");
-        PatientAdmit patientAdmitRecord = patientAdmitDAO.getPatientAdmitRecord(patientId, providerId);
-        return patientAdmitMapper.toDto(patientAdmitRecord);
+        PatientStatus patientStatusRecord = patientAdmitDAO.getPatientAdmitRecord(patientId, providerId);
+        return patientAdmitMapper.toDto(patientStatusRecord);
     }
 
+    /**
+     * To fetch list of PatientStatus for a particular patient.
+     * @param patientId
+     * @return List of all patientStatus matching given patientId.
+     */
     @Override
-    public List<PatientAdmitDTO> getPatientAdmitByExp(String patientId) {
+    public List<PatientStatusDTO> getPatientAdmitByExp(String patientId) {
         log.info("PatientAdmitServiceImpl#getPatientAdmitByExp");
-        List<PatientAdmit> patientAdmitByExp = patientAdmitDAO.getPatientAdmitByExp(patientId);
-        return patientAdmitMapper.toDto(patientAdmitByExp);
+        List<PatientStatus> patientStatusByExp = patientAdmitDAO.getPatientAdmitByExp(patientId);
+        return patientAdmitMapper.toDto(patientStatusByExp);
     }
 
 }

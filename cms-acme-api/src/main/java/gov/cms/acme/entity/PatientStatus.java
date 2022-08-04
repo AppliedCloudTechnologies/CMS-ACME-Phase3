@@ -6,17 +6,15 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
-@DynamoDBTable(tableName = "patient-admit")
-public class PatientAdmit extends AuditEntity {
+@DynamoDBTable(tableName = "patient_status")
+public class PatientStatus extends AuditEntity {
 
     @DynamoDBHashKey(attributeName = "pat_id")
     private String patId;
 
-    @DynamoDBRangeKey(attributeName = "prov_id")
-    private String provId;
+    @DynamoDBRangeKey(attributeName = "prov_nbr")
+    private String provNbr;
 
     @DynamoDBAttribute(attributeName = "admit_date")
     private String admitDate;

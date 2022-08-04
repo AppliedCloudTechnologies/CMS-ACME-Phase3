@@ -1,15 +1,20 @@
 package gov.cms.acme.api;
 
 
-import gov.cms.acme.utils.Utils;
 import gov.cms.acme.constants.Constants;
 import gov.cms.acme.dto.CmsResponse;
-import gov.cms.acme.dto.PatientAdmitDTO;
+import gov.cms.acme.dto.PatientStatusDTO;
 import gov.cms.acme.exception.CmsAcmeException;
 import gov.cms.acme.service.PatientAdmitService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import gov.cms.acme.utils.Utils;
+//import io.swagger.annotations.Api;
+//import io.swagger.annotations.ApiOperation;
+//import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,39 +29,60 @@ import java.util.Objects;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/patient-admit")
-@Api(value = "APIs for PatientAdmit records.")
 public class PatientAdmitController {
 
    private final PatientAdmitService patientAdmitService;
 
+   /**
+    * @param patientStatusDTO
+    * @return status like success or error
+    */
    @PutMapping
-   @ApiOperation(value = "To update PatientAdmit records.")
-   public CmsResponse<PatientAdmitDTO> updateRecord(@ApiParam(value = "PatientAdmit request object.")
-                                                       @RequestBody @Valid PatientAdmitDTO patientAdmitDTO){
+   @Operation(description = "To update PatientStatus record.")
+   @ApiResponse(description = "SUCCESS or ERROR")
+   public CmsResponse updateRecord(@Parameter(description = "PatientStatus request object.",name = "patientStatusDTO")
+                                    @RequestBody @Valid PatientStatusDTO patientStatusDTO){
       log.info("PatientAdmitController#updateRecord");
-      PatientAdmitDTO result= patientAdmitService.updatePatientAdmit(patientAdmitDTO);
+      PatientStatusDTO result= patientAdmitService.updatePatientAdmit(patientStatusDTO);
       return Utils.toResponse(null,Constants.SUCCESS,"Record updated Successfully!");
    }
 
-   @ApiOperation(value = "To fetch PatientAdmit record based on patientId and providerId")
-   @GetMapping("/{providerId}/{patientId}")
-   public CmsResponse<PatientAdmitDTO> getAllForPatientAndProvider(@ApiParam(value = "Provider's Id") @PathVariable(value = Constants.PROVIDER_ID) String providerId,
-                                                                   @ApiParam(value = "Patient's Id") @PathVariable(value = Constants.PATIENT_ID) String patientId){
+   /**
+    * @param providerId
+    * @param patientId
+    * @return Matching record of PatientStatus.
+    */
+   @Operation(description = "To fetch PatientStatus record based on patientId and providerId.")
+   @ApiResponse(description = "Returns PatientStatus matching provNbr and patientId")
+   @GetMapping("/{prov_nbr}/{patientId}")
+   public CmsResponse<PatientStatusDTO> getAllForPatientAndProvider(@Parameter(name = "prov_nbr",description = "Provider's id" )
+                                                                       @PathVariable(value = Constants.PROVIDER_ID) String providerId,
+                                                                    @Parameter(name = "patientId",description = "Patient's id" )
+                                                                    @PathVariable(value = Constants.PATIENT_ID) String patientId){
       log.info("PatientAdmitController#getAllForPatientAndProvider");
-      PatientAdmitDTO patientAdmitDTO= patientAdmitService.getPatientAdmitDetail(patientId, providerId);
-      return Utils.toResponse(patientAdmitDTO,Constants.SUCCESS, Objects.isNull(patientAdmitDTO)?"Record not found!":"Record found!");
+      PatientStatusDTO patientStatusDTO = patientAdmitService.getPatientAdmitDetail(patientId, providerId);
+      return Utils.toResponse(patientStatusDTO,Constants.SUCCESS, Objects.isNull(patientStatusDTO)?"Record not found!":"Record found!");
 
    }
 
-   @ApiOperation(value = "To fetch records for a particular patient.")
+   /**
+    * @param patientId
+    * @return List of all patientStatus for a particular patient.
+    */
+   @Operation(description = "To fetch List of PatientStatus for a particular patient.")
+   @ApiResponse(description = "Returns List of all PatientStatus matching given patientId.")
    @GetMapping("/{patientId}")
-   public CmsResponse<List<PatientAdmitDTO>> getPatientAdmitByPatientId(@ApiParam(value = "Patient's Id") @PathVariable(value = Constants.PATIENT_ID) String patientId){
+   public CmsResponse<List<PatientStatusDTO>> getPatientAdmitByPatientId(@Parameter(name = "patientId",description = "Patient's id" )@PathVariable(value = Constants.PATIENT_ID) String patientId){
       log.info("PatientAdmitController#getPatientAdmitByExp");
-      List<PatientAdmitDTO> patientAdmitDTO= patientAdmitService.getPatientAdmitByExp(patientId);
-      return Utils.toResponse(patientAdmitDTO, Constants.SUCCESS,Objects.isNull(patientAdmitDTO)||patientAdmitDTO.isEmpty() ?"Record not found!":"Record found!");
+      List<PatientStatusDTO> patientStatusDTO = patientAdmitService.getPatientAdmitByExp(patientId);
+      return Utils.toResponse(patientStatusDTO, Constants.SUCCESS,Objects.isNull(patientStatusDTO)|| patientStatusDTO.isEmpty() ?"Record not found!":"Record found!");
    }
 
 
+   /**
+    * @param ex
+    * @return well formatted exception message.
+    */
    @ExceptionHandler(CmsAcmeException.class)
    @ResponseStatus(HttpStatus.BAD_REQUEST)
    public CmsResponse handleException(CmsAcmeException ex){
@@ -70,6 +96,10 @@ public class PatientAdmitController {
    }
 
 
+   /**
+    * @param ex
+    * @return validation exception message.
+    */
    @ExceptionHandler(MethodArgumentNotValidException.class)
    @ResponseStatus(HttpStatus.BAD_REQUEST)
    public CmsResponse handleException(MethodArgumentNotValidException ex){

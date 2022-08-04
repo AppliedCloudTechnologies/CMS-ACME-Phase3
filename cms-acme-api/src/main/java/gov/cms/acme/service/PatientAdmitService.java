@@ -1,15 +1,14 @@
 package gov.cms.acme.service;
 
-import gov.cms.acme.dto.PatientAdmitDTO;
-import gov.cms.acme.entity.PatientAdmit;
+import gov.cms.acme.dto.PatientStatusDTO;
 
 import java.util.List;
 
 public interface PatientAdmitService {
 
-    public PatientAdmitDTO updatePatientAdmit(PatientAdmitDTO patientAdmitDTO);
+    public PatientStatusDTO updatePatientAdmit(PatientStatusDTO patientStatusDTO);
 
-    public PatientAdmitDTO getPatientAdmitDetail(String patientId, String providerId);
+    public PatientStatusDTO getPatientAdmitDetail(String patientId, String providerId);
 
-    public List<PatientAdmitDTO> getPatientAdmitByExp(String patientId);
+    public List<PatientStatusDTO> getPatientAdmitByExp(String patientId);
 }

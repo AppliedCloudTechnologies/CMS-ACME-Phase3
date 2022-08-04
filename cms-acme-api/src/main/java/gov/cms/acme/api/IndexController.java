@@ -1,5 +1,7 @@
 package gov.cms.acme.api;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +14,10 @@ import java.util.Map;
 @RestController
 public class IndexController {
 
-    @RequestMapping("/info/status")
+
+    @GetMapping("/info/status")
+    @Operation(description = "To the status of service.")
+    @ApiResponse(description = "status: up")
     public ResponseEntity<Map<String, String>> getHealth() {
         log.info("check status");
         return ResponseEntity.ok(Map.of("status", "UP"));
