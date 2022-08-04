@@ -10,6 +10,12 @@ API documentation for CMS-ACME PatientStatus service.
 
 To update PatientStatus record.
 
+##### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ---- |
+| PatientStatusRequestDTO | body | PatientStatus update object. | Yes | [PatientStatusRequestDTO](#patientstatusrequestdto) |
+
 ##### Responses
 
 | Code | Description |
@@ -74,10 +80,10 @@ To fetch List of PatientStatus for a particular patient.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| status | string | _Enum:_ `"UNAFFECTED"`, `"INJURED"`, `"ILL_IN_FACILITY"`, `"ILL_NOT_IN_FACILITY"`, `"DECEASED"`, `"ISOLATED"` | No |
+| status | string | _Enum:_ `"UNAFFECTED"`, `"INJURED"`, `"ILL_IN_FACILITY"`, `"ILL_NOT_IN_FACILITY"`, `"DECEASED"`, `"ISOLATED"` | Yes |
 | notes | string |  | No |
 | pat_id | string |  | Yes |
-| disaster_type | string | _Enum:_ `"EARTHQUAKE"`, `"TORNADO"`, `"HURRICANE"`, `"PENDAMIC"`, `"OTHER"` | No |
+| disaster_type | string | _Enum:_ `"EARTHQUAKE"`, `"TORNADO"`, `"HURRICANE"`, `"PENDAMIC"`, `"OTHER"` | Yes |
 | date_of_death | string |  | No |
 
 #### CmsResponseObject

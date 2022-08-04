@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -21,8 +22,12 @@ public class PatientStatusRequestDTO {
     @NotBlank(message = "PatientId is Required!")
     @JsonProperty(value = "pat_id")
     private String patId;
+
+    @NotNull(message = "DisasterType is Required!")
     @JsonProperty(value = "disaster_type")
     private DisasterType disasterType;
+
+    @NotNull(message = "Status is Required!")
     private AdmitStatus status;
     @JsonProperty(value = "date_of_death")
     private String dateOfDeath;
