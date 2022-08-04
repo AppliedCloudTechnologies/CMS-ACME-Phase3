@@ -35,6 +35,7 @@ ecsFargateService.iml
 .terraform/terraform.tfstate
 .terraform/*
 templates/.terraform.lock.hcl
+<<<<<<< HEAD
 Product-0.txt
 Product-1.txt
 Product-2.txt
@@ -49,3 +50,6 @@ Product-9.txt
 refactoringIAC/.terraform/terraform.tfstate
 refactoringIAC/.terraform/providers/registry.terraform.io/hashicorp/tls/4.0.1/linux_amd64/terraform-provider-tls_v4.0.1_x5
 refactoringIAC/.terraform/providers/registry.terraform.io/hashicorp/aws/4.24.0/linux_amd64/terraform-provider-aws_v4.24.0_x5
+=======
+refactoringIAC/.terraform/terraform.tfstate
+>>>>>>> d953de7da9eacbee6d99b58d7316fb63ef5fd826

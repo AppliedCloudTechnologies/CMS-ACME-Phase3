@@ -1,5 +1,5 @@
-ACCOUNT_NUMBER=<YOUR_ACCOUNT_NUMBER>
-REGION=<REGION>
+ACCOUNT_NUMBER=656862533084
+REGION=us-east-1
 INPUT_S3_BUCKET="my-stepfunction-ecs-app-dev-source-bucket"
 
 APP_ECR_REPO_NAME=my-stepfunction-ecs-app-repo

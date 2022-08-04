@@ -1,4 +1,4 @@
-ACCOUNT_NUMBER=<YOUR_ACCOUNT_NUMBER>
+ACCOUNT_NUMBER=656862533084
 
 SOURCE_S3_BUCKET="my-stepfunction-ecs-app-dev-source-bucket"
 TARGET_S3_BUCKET="my-stepfunction-ecs-app-dev-target-bucket"
