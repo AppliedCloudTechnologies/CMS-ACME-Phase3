@@ -34,3 +34,4 @@ ecsFargateService.iml
 *DS_Store*
 .terraform/terraform.tfstate
 .terraform/*
+templates/.terraform.lock.hcl
