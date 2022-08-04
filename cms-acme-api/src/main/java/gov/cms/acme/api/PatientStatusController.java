@@ -3,13 +3,16 @@ package gov.cms.acme.api;
 
 import gov.cms.acme.constants.Constants;
 import gov.cms.acme.dto.CmsResponse;
-import gov.cms.acme.dto.PatientStatusDTO;
+import gov.cms.acme.dto.PatientStatusResponseDTO;
+import gov.cms.acme.dto.PatientStatusRequestDTO;
 import gov.cms.acme.exception.CmsAcmeException;
 import gov.cms.acme.service.PatientStatusService;
 import gov.cms.acme.utils.SecurityUtil;
 import gov.cms.acme.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +40,9 @@ public class PatientStatusController {
    @PutMapping
    @Operation(description = "To update PatientStatus record.")
    @ApiResponse(description = "SUCCESS or ERROR")
-   public CmsResponse<?> updateRecord(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "PatientStatusDTO Object.")
-                                    @RequestBody @Valid PatientStatusDTO patientStatusDTO){
+   public CmsResponse<?> updateRecord(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+           description = "PatientStatusDTO Object.", content = @Content(schema = @Schema(implementation = PatientStatusRequestDTO.class)))
+                                    @RequestBody @Valid PatientStatusRequestDTO patientStatusDTO){
       log.info("PatientStatusController#updateRecord");
       log.debug("UserGroup : {}", SecurityUtil.getUserGroup());
       Map<String, Object> claims = SecurityUtil.getUserClaims();
@@ -46,8 +50,7 @@ public class PatientStatusController {
       if(Objects.isNull(facilityId) || facilityId.isBlank()) {
          throw new CmsAcmeException("User Not Allowed to Update Patient Status");
       }
-      patientStatusDTO.setProvNbr(facilityId);
-      String result= patientStatusService.updatePatientStatus(patientStatusDTO);
+      String result= patientStatusService.updatePatientStatus(patientStatusDTO,facilityId);
       log.debug("Update Patient Status : {}", result);
       return Utils.toResponse(null,result.contains("Invalid")?Constants.ERROR:Constants.SUCCESS,result);
    }
@@ -60,13 +63,13 @@ public class PatientStatusController {
    @Operation(description = "To fetch PatientStatus record based on patientId and providerId.")
    @ApiResponse(description = "Returns PatientStatus matching provNbr and patientId")
    @GetMapping("/{prov_nbr}/{patientId}")
-   public CmsResponse<PatientStatusDTO> getAllForPatientAndProvider(@Parameter(name = "prov_nbr",description = "Provider's id" )
+   public CmsResponse<PatientStatusResponseDTO> getAllForPatientAndProvider(@Parameter(name = "prov_nbr",description = "Provider's id" )
                                                                        @PathVariable(value = Constants.PROVIDER_ID) String providerId,
-                                                                    @Parameter(name = "patientId",description = "Patient's id" )
+                                                                            @Parameter(name = "patientId",description = "Patient's id" )
                                                                     @PathVariable(value = Constants.PATIENT_ID) String patientId){
       log.info("PatientStatusController#getAllForPatientAndProvider");
-      PatientStatusDTO patientStatusDTO = patientStatusService.getPatientStatusDetail(patientId, providerId);
-      return Utils.toResponse(patientStatusDTO,Constants.SUCCESS, Objects.isNull(patientStatusDTO)?"Record not found!":"Record found!");
+      PatientStatusResponseDTO patientStatusResponseDTO = patientStatusService.getPatientStatusDetail(patientId, providerId);
+      return Utils.toResponse(patientStatusResponseDTO,Constants.SUCCESS, Objects.isNull(patientStatusResponseDTO)?"Record not found!":"Record found!");
 
    }
 
@@ -77,10 +80,10 @@ public class PatientStatusController {
    @Operation(description = "To fetch List of PatientStatus for a particular patient.")
    @ApiResponse(description = "Returns List of all PatientStatus matching given patientId.")
    @GetMapping("/{patientId}")
-   public CmsResponse<List<PatientStatusDTO>> getPatientStatusByPatientId(@Parameter(name = "patientId",description = "Patient's id" )@PathVariable(value = Constants.PATIENT_ID) String patientId){
+   public CmsResponse<List<PatientStatusResponseDTO>> getPatientStatusByPatientId(@Parameter(name = "patientId",description = "Patient's id" )@PathVariable(value = Constants.PATIENT_ID) String patientId){
       log.info("PatientStatusController#getPatientStatusByPatientId");
-      List<PatientStatusDTO> patientStatusDTO = patientStatusService.getPatientStatusByExp(patientId);
-      return Utils.toResponse(patientStatusDTO, Constants.SUCCESS,Objects.isNull(patientStatusDTO)|| patientStatusDTO.isEmpty() ?"Record not found!":"Record found!");
+      List<PatientStatusResponseDTO> patientStatusResponseDTO = patientStatusService.getPatientStatusByExp(patientId);
+      return Utils.toResponse(patientStatusResponseDTO, Constants.SUCCESS,Objects.isNull(patientStatusResponseDTO)|| patientStatusResponseDTO.isEmpty() ?"Record not found!":"Record found!");
    }
 
 

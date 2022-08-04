@@ -16,8 +16,6 @@ public class PatientStatus extends AuditEntity {
     @DynamoDBRangeKey(attributeName = "prov_nbr")
     private String provNbr;
 
-    @DynamoDBAttribute(attributeName = "admit_date")
-    private String admitDate;
     @DynamoDBAttribute(attributeName = "disaster_type")
     private String disasterType;
     @DynamoDBAttribute

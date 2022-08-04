@@ -7,10 +7,8 @@ API documentation for CMS-ACME PatientStatus service.
 
 #### PUT
 ##### Description
-To update PatientStatus record.
 
-####RequestBody
-PatientStatusDTO Object.
+To update PatientStatus record.
 
 ##### Responses
 
@@ -72,21 +70,14 @@ To fetch List of PatientStatus for a particular patient.
 
 ### Models
 
-#### PatientStatusDTO
+#### PatientStatusRequestDTO
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | status | string | _Enum:_ `"UNAFFECTED"`, `"INJURED"`, `"ILL_IN_FACILITY"`, `"ILL_NOT_IN_FACILITY"`, `"DECEASED"`, `"ISOLATED"` | No |
 | notes | string |  | No |
-| created_by | string |  | No |
-| created_timestamp | string |  | No |
-| modified_by | string |  | No |
-| modified_timestamp | string |  | No |
 | pat_id | string |  | Yes |
-| prov_nbr | string |  | No |
-| admit_date | string |  | No |
 | disaster_type | string | _Enum:_ `"EARTHQUAKE"`, `"TORNADO"`, `"HURRICANE"`, `"PENDAMIC"`, `"OTHER"` | No |
-| status_update_date | string |  | No |
 | date_of_death | string |  | No |
 
 #### CmsResponseObject
@@ -103,14 +94,30 @@ To fetch List of PatientStatus for a particular patient.
 | description | string |  | No |
 | code | string |  | No |
 
-#### CmsResponsePatientStatusDTO
+#### CmsResponsePatientStatusResponseDTO
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | data | object |  | No |
 | status | object |  | No |
 
-#### CmsResponseListPatientStatusDTO
+#### PatientStatusResponseDTO
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| status | string | _Enum:_ `"UNAFFECTED"`, `"INJURED"`, `"ILL_IN_FACILITY"`, `"ILL_NOT_IN_FACILITY"`, `"DECEASED"`, `"ISOLATED"` | No |
+| notes | string |  | No |
+| created_by | string |  | No |
+| created_timestamp | string |  | No |
+| modified_by | string |  | No |
+| modified_timestamp | string |  | No |
+| pat_id | string |  | Yes |
+| prov_nbr | string |  | No |
+| disaster_type | string | _Enum:_ `"EARTHQUAKE"`, `"TORNADO"`, `"HURRICANE"`, `"PENDAMIC"`, `"OTHER"` | No |
+| status_update_date | string |  | No |
+| date_of_death | string |  | No |
+
+#### CmsResponseListPatientStatusResponseDTO
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |

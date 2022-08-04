@@ -15,7 +15,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests(authorize -> authorize
-                        .antMatchers("/info/status", "/v3/api-docs*","/swagger-ui/*").permitAll()
+                        .antMatchers("/info/status","/v3/api-docs*", "/v3/api-docs/*","/swagger-ui/*").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .csrf().disable();
