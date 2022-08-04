@@ -32,3 +32,5 @@ samples/*
 .idea/*
 ecsFargateService.iml
 *DS_Store*
+.terraform/terraform.tfstate
+.terraform/*
