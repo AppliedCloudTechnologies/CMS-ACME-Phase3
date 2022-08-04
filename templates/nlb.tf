@@ -19,7 +19,7 @@ resource "aws_lb" "main" {
   tags     = var.tags
 }
 
-# adds a tcp listener to the load balancer and allows ingressterr
+# adds a tcp listener to the load balancer and allows ingress
 resource "aws_lb_listener" "tcp" {
   load_balancer_arn = aws_lb.main.id
   port              = var.lb_port
