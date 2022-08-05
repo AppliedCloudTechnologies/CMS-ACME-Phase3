@@ -3,20 +3,20 @@ package gov.cms.acme.api;
 
 import gov.cms.acme.constants.Constants;
 import gov.cms.acme.dto.CmsResponse;
-import gov.cms.acme.dto.PatientStatusResponseDTO;
 import gov.cms.acme.dto.PatientStatusRequestDTO;
+import gov.cms.acme.dto.PatientStatusResponseDTO;
+import gov.cms.acme.exception.CmsAccessDeniedException;
 import gov.cms.acme.exception.CmsAcmeException;
 import gov.cms.acme.service.PatientStatusService;
 import gov.cms.acme.utils.SecurityUtil;
 import gov.cms.acme.utils.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +46,7 @@ public class PatientStatusController {
       Map<String, Object> claims = SecurityUtil.getUserClaims();
       String facilityId = (String) claims.get("custom:facility_id");
       if(Objects.isNull(facilityId) || facilityId.isBlank()) {
-         throw new CmsAcmeException("User Not Allowed to Update Patient Status");
+         throw new CmsAccessDeniedException("User Not Allowed to Update Patient Status (Invalid Role or Attribute)");
       }
       String result= patientStatusService.updatePatientStatus(patientStatusDTO,facilityId);
       log.debug("Update Patient Status : {}", result);
