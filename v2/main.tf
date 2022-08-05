@@ -14,7 +14,8 @@ provider "aws" {
 resource "aws_security_group" "EC2SecurityGroup" {
   description = "Cms -Fargate to LB SecGroup"
   name        = "CmsFargateAlbSG"
-  vpc_id      = aws_vpc.EC2VPC.id
+
+  vpc_id = aws_vpc.EC2VPC.id
   ingress {
     cidr_blocks = [
       "0.0.0.0/0"
@@ -52,12 +53,12 @@ resource "aws_lb" "ElasticLoadBalancingV2LoadBalancer" {
   internal           = false
   load_balancer_type = "application"
   subnets = [
-    "subnet-00645af7b5a38705f",
-    "subnet-0db5d7b616b751238"
+    aws_subnet.EC2Subnet.id,
+    aws_subnet.EC2Subnet2.id
   ]
   security_groups = [
     "${aws_security_group.EC2SecurityGroup.id}",
-    "sg-0b8ffb34c8f2b67bd"
+    "${aws_security_group.temp_sg.id}"
   ]
   ip_address_type = "ipv4"
   access_logs {
@@ -165,6 +166,7 @@ resource "aws_vpc" "EC2VPC" {
   enable_dns_support   = true
   enable_dns_hostnames = true
   instance_tenancy     = "default"
+
 }
 
 resource "aws_security_group" "EC2SecurityGroup2" {
@@ -197,7 +199,7 @@ resource "aws_security_group" "EC2SecurityGroup3" {
   vpc_id = aws_vpc.EC2VPC.id
   ingress {
     security_groups = [
-      "sg-034e3c11cb973deb9"
+      "${aws_security_group.temp_sg.id}"
     ]
     from_port = 80
     protocol  = "tcp"
@@ -535,6 +537,10 @@ resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
   ]
 }
 
+resource "aws_iam_service_linked_role" "ecs" {
+  aws_service_name = "ecs.amazonaws.com"
+}
+
 resource "aws_ecs_service" "ECSService" {
   name    = "cms-amce-fargate-service"
   cluster = aws_ecs_cluster.ECSCluster.id
@@ -549,15 +555,15 @@ resource "aws_ecs_service" "ECSService" {
   task_definition                    = aws_ecs_task_definition.ECSTaskDefinition.arn
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 0
-  iam_role                           = "arn:aws:iam::548622183842:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"
+  iam_role                           = aws_iam_service_linked_role.ecs.id
   network_configuration {
     assign_public_ip = true
     security_groups = [
       "${aws_security_group.EC2SecurityGroup.id}"
     ]
     subnets = [
-      "subnet-0db5d7b616b751238",
-      "subnet-00645af7b5a38705f"
+      aws_subnet.EC2Subnet.id,
+      aws_subnet.EC2Subnet2.id
     ]
   }
   health_check_grace_period_seconds = 60
@@ -567,11 +573,50 @@ resource "aws_ecs_service" "ECSService" {
 resource "aws_ecs_task_definition" "ECSTaskDefinition" {
   container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"548622183842.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"us-east-1\"},{\"name\":\"AWS_SECRET_KEY\",\"value\":\"F7Du7CpvsrD92LjhJOM3MkuSqL38MaAgEhXtwdNJ\"},{\"name\":\"AWS_ACCESS_KEY\",\"value\":\"AKIAX7PDOFWRKO6XLY4L\"},{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HwRgngsNx/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
   family                = "task-def-cms-api"
-  execution_role_arn    = "arn:aws:iam::548622183842:role/ecsTaskExecutionRole"
+  execution_role_arn    = aws_iam_role.IAMRole.arn
   network_mode          = "awsvpc"
   requires_compatibilities = [
     "FARGATE"
   ]
   cpu    = "512"
   memory = "1024"
+}
+
+resource "aws_iam_role" "IAMRole" {
+  path                 = "/"
+  name                 = "ecsTaskExecutionRole"
+  assume_role_policy   = "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+  max_session_duration = 3600
+
+}
+
+resource "aws_iam_service_linked_role" "IAMServiceLinkedRole" {
+  aws_service_name = "ecs.amazonaws.com"
+}
+
+resource "aws_security_group" "temp_sg" {
+  name        = "temp_sg"
+  description = "temp_sg"
+  vpc_id      = aws_vpc.EC2VPC.id
+
+  ingress {
+    description      = "temp_sg"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "allow_tls"
+  }
 }
