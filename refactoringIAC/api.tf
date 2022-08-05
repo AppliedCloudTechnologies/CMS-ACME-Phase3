@@ -66,9 +66,9 @@ resource "aws_apigatewayv2_stage" "http_ecs" {
     Usage = "ansong-api-default-stage"
   }
 
-    lifecycle {
-    prevent_destroy = true
-  }
+  #   lifecycle {
+  #   prevent_destroy = true
+  # }
 
 }
 
