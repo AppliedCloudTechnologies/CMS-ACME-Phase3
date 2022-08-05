@@ -51,7 +51,9 @@ resource "aws_apigatewayv2_deployment" "http_ecs" {
   }
 
   lifecycle {
-    create_before_destroy = true
+    ignore_changes = [
+      triggers
+    ]
   }
 }
 
@@ -63,6 +65,11 @@ resource "aws_apigatewayv2_stage" "http_ecs" {
   tags = {
     Usage = "ansong-api-default-stage"
   }
+
+    lifecycle {
+    prevent_destroy = true
+  }
+
 }
 
 resource "aws_apigatewayv2_vpc_link" "http_ecs" {
