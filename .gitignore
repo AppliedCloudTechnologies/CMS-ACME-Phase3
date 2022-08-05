@@ -35,6 +35,8 @@ ecsFargateService.iml
 .terraform/terraform.tfstate
 .terraform/*
 *.terraform/*
+*/.terraform/*
+*.terraform*
 .terraform.lock.hcl
 Product-0.txt
 Product-1.txt

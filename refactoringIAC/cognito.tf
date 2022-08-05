@@ -1,25 +1,20 @@
-resource "aws_cognito_user_pool" "ecs_extension" {
-  name                     = "ecs_extension"
-  auto_verified_attributes = ["email"]
-
-  admin_create_user_config {
-    allow_admin_create_user_only = false
+resource "aws_cognito_user_pool" "cms_acme_user_pool" {
+  name                     = "cms_acme_user_pool"
+  alias_attributes = ["preferred_username"]
+  username_configuration {
+    case_sensitive = false
   }
 
-  verification_message_template {
-    default_email_option = "CONFIRM_WITH_CODE" #default
-  }
-
-  email_configuration {
-    email_sending_account = "COGNITO_DEFAULT"
-  }
-
-  password_policy {
-    minimum_length    = 8
-    require_lowercase = true
-    require_numbers   = true
-    require_symbols   = true
-    require_uppercase = true
+  schema {
+    name                     = "email"
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true  # false for "sub"
+    required                 = true # true for "sub"
+    string_attribute_constraints {   # if it is a string
+      min_length = 1                 # 10 for "birthdate"
+      max_length = 2048              # 10 for "birthdate"
+    }
   }
 
   account_recovery_setting {
@@ -39,51 +34,80 @@ resource "aws_cognito_user_pool" "ecs_extension" {
   }
 }
 
-resource "aws_cognito_user_pool_domain" "ecs_extension" {
-  domain       = "ansong-ecs-extension-userpool"
-  user_pool_id = aws_cognito_user_pool.ecs_extension.id
+resource "aws_cognito_user_pool_domain" "cms_acme_user_pool" {
+  domain       = "cms-acme-poc"
+  user_pool_id = aws_cognito_user_pool.cms_acme_user_pool.id
 }
 
-resource "aws_cognito_user_pool_client" "ecs_extension" {
-  name                                 = "client"
-  user_pool_id                         = aws_cognito_user_pool.ecs_extension.id
+ resource "aws_cognito_user_pool_client" "cms_acme_user_pool" {
+     name = "client"
+     user_pool_id = aws_cognito_user_pool.cms_acme_user_pool.id
+     prevent_user_existence_errors = "ENABLED"
+     enable_token_revocation = true
+     callback_urls                        = ["https://example.com/callback"]
+     logout_urls                        = ["https://example.com/signout"]
+
   allowed_oauth_flows_user_pool_client = true
-  callback_urls                        = ["https://api.acme-project.com"]
-  allowed_oauth_flows                  = ["code"]
-  allowed_oauth_scopes                 = ["aws.cognito.signin.user.admin"]
-  supported_identity_providers         = ["COGNITO"]
+  allowed_oauth_flows                  = ["code", "implicit"]
+  allowed_oauth_scopes                 = ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"]
+
+     token_validity_units  {
+     refresh_token = "days"
+     access_token = "hours"
+     id_token = "hours"
+ }
+
+ refresh_token_validity = 30
+ access_token_validity = 1
+ id_token_validity = 1
+
+
+     explicit_auth_flows = [
+      "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+      "ALLOW_USER_SRP_AUTH",
+      "ALLOW_REFRESH_TOKEN_AUTH"
+      ]
+
+
+ }
+
+
+# resource "aws_cognito_identity_pool" "cms_acme_user_pool" {
+#   identity_pool_name               = "Cognito-Pool"
+#   allow_unauthenticated_identities = false
+#   allow_classic_flow               = false
+
+#   cognito_identity_providers {
+#     client_id               = aws_cognito_user_pool_client.cms_acme_user_pool.id
+#     provider_name           = aws_cognito_user_pool.cms_acme_user_pool.endpoint
+#     server_side_token_check = false
+#   }
+
+#   tags = {
+#     Name = "ansong844-identity-pool"
+#   }
+# }
+
+# resource "aws_cognito_user_pool_ui_customization" "cms_acme_user_pool" {
+#   css          = ".label-customizable {font-weight: 400;}"
+#   image_file   = filebase64("acme-cms.png")
+#   user_pool_id = aws_cognito_user_pool_domain.cms_acme_user_pool.user_pool_id
+# }
+
+
+
+
+resource "aws_cognito_user_group" "EHR_maintainer" {
+  name         = "EHR_maintainer"
+  user_pool_id = aws_cognito_user_pool.cms_acme_user_pool.id
 }
 
-resource "aws_cognito_user" "user1" {
-  user_pool_id             = aws_cognito_user_pool.ecs_extension.id
-  username                 = "ansong844110"
-  password                 = "testPW!!223344$$"
-  message_action           = "SUPPRESS"
-  desired_delivery_mediums = ["EMAIL"]
-
-  attributes = {
-    email = "ansong844110@testemail.com"
-  }
+resource "aws_cognito_user_group" "Facility_System_Administrator" {
+  name         = "Facility_System_Administrator"
+  user_pool_id = aws_cognito_user_pool.cms_acme_user_pool.id
 }
 
-resource "aws_cognito_identity_pool" "ecs_extension" {
-  identity_pool_name               = "Cognito-Pool"
-  allow_unauthenticated_identities = false
-  allow_classic_flow               = false
-
-  cognito_identity_providers {
-    client_id               = aws_cognito_user_pool_client.ecs_extension.id
-    provider_name           = aws_cognito_user_pool.ecs_extension.endpoint
-    server_side_token_check = false
-  }
-
-  tags = {
-    Name = "ansong844-identity-pool"
-  }
-}
-
-resource "aws_cognito_user_pool_ui_customization" "ecs_extension" {
-  css          = ".label-customizable {font-weight: 400;}"
-  image_file   = filebase64("acme-cms.png")
-  user_pool_id = aws_cognito_user_pool_domain.ecs_extension.user_pool_id
+resource "aws_cognito_user_group" "Government_Care_Systems_Coordinator" {
+  name         = "Government_Care_Systems_Coordinator"
+  user_pool_id = aws_cognito_user_pool.cms_acme_user_pool.id
 }
