@@ -56,3 +56,6 @@ templates/.terraform.lock.hcl
 v2/terraform.tfstate.backup
 v2/terraform.tfstate.backup
 v2/terraform.tfstate.backup
+terraform.tfstate
+v2/terraform.tfstate
+v2/terraform.tfstate.backup
