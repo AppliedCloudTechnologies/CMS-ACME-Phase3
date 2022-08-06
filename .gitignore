@@ -53,3 +53,6 @@ refactoringIAC/.terraform/terraform.tfstate
 refactoringIAC/.terraform/providers/registry.terraform.io/hashicorp/aws/4.24.0/linux_amd64/terraform-provider-aws_v4.24.0_x5
 refactoringIAC/.terraform/providers/registry.terraform.io/hashicorp/tls/4.0.1/linux_amd64/terraform-provider-tls_v4.0.1_x5
 templates/.terraform.lock.hcl
+v2/terraform.tfstate.backup
+v2/terraform.tfstate.backup
+v2/terraform.tfstate.backup
