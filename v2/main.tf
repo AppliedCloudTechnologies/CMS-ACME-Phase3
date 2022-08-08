@@ -245,6 +245,7 @@ resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
 }
 
 resource "aws_ecs_service" "ECSService" {
+  enable_ecs_managed_tags = true
   name    = "cms-amce-fargate-service"
   cluster = aws_ecs_cluster.ECSCluster.id
   load_balancer {
@@ -257,7 +258,7 @@ resource "aws_ecs_service" "ECSService" {
   platform_version                   = "LATEST"
   task_definition                    = aws_ecs_task_definition.ECSTaskDefinition.arn
   deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 0
+  deployment_minimum_healthy_percent = 100
 #   iam_role                           = aws_iam_service_linked_role.IAMServiceLinkedRole5.id
   network_configuration {
     assign_public_ip = true
@@ -269,12 +270,12 @@ resource "aws_ecs_service" "ECSService" {
       aws_subnet.EC2Subnet2.id
     ]
   }
-  health_check_grace_period_seconds = 60
+  health_check_grace_period_seconds = 0
   scheduling_strategy               = "REPLICA"
 }
 
 resource "aws_ecs_task_definition" "ECSTaskDefinition" {
-  container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"548622183842.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"us-east-1\"},{\"name\":\"AWS_SECRET_KEY\",\"value\":\"F7Du7CpvsrD92LjhJOM3MkuSqL38MaAgEhXtwdNJ\"},{\"name\":\"AWS_ACCESS_KEY\",\"value\":\"AKIAX7PDOFWRKO6XLY4L\"},{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HwRgngsNx/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
+  container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"656862533084.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
   family                = "task-def-cms-api"
   execution_role_arn    = aws_iam_role.IAMRole.arn
   network_mode          = "awsvpc"
