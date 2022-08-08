@@ -15,29 +15,6 @@ resource "aws_internet_gateway" "EC2InternetGateway" {
     vpc_id = "${aws_vpc.EC2VPC.id}"
 }
 
-resource "aws_security_group" "EC2SecurityGroup" {
-  description = "Cms -Fargate to LB SecGroup"
-  name        = "CmsFargateAlbSG"
-
-  vpc_id = aws_vpc.EC2VPC.id
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
-
 resource "aws_subnet" "EC2Subnet" {
   availability_zone       = "us-east-1a"
   cidr_block              = "10.0.0.0/24"
@@ -61,7 +38,6 @@ resource "aws_lb" "ElasticLoadBalancingV2LoadBalancer" {
     aws_subnet.EC2Subnet2.id
   ]
   security_groups = [
-    "${aws_security_group.EC2SecurityGroup.id}",
     "${aws_security_group.temp_sg.id}"
   ]
   ip_address_type = "ipv4"
@@ -173,121 +149,6 @@ resource "aws_vpc" "EC2VPC" {
 
 }
 
-resource "aws_security_group" "EC2SecurityGroup2" {
-  description = "Security Group"
-  name        = "cms-service-lb-to-container-secgroup"
-
-  vpc_id = aws_vpc.EC2VPC.id
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "tcp"
-    to_port   = 65535
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
-
-resource "aws_security_group" "EC2SecurityGroup3" {
-  description = "2022-08-03T09:28:05.280Z"
-  name        = "cms-ac-3107"
-
-  vpc_id = aws_vpc.EC2VPC.id
-  ingress {
-    security_groups = [
-      "${aws_security_group.temp_sg.id}"
-    ]
-    from_port = 80
-    protocol  = "tcp"
-    to_port   = 80
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
-
-resource "aws_security_group" "EC2SecurityGroup4" {
-  description = "2022-08-03T07:48:38.399Z"
-  name        = "cms-ac-1084"
-
-  vpc_id = aws_vpc.EC2VPC.id
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 80
-    protocol  = "tcp"
-    to_port   = 80
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
-
-resource "aws_security_group" "EC2SecurityGroup5" {
-  description = "2022-08-03T10:26:10.525Z"
-  name        = "servic-885"
-
-  vpc_id = aws_vpc.EC2VPC.id
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 80
-    protocol  = "tcp"
-    to_port   = 80
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
-
-resource "aws_security_group" "EC2SecurityGroup6" {
-  description = "2022-08-03T10:06:19.864Z"
-  name        = "cmsacm-717"
-
-  vpc_id = aws_vpc.EC2VPC.id
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 80
-    protocol  = "tcp"
-    to_port   = 80
-  }
-  egress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 0
-    protocol  = "-1"
-    to_port   = 0
-  }
-}
-
 resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup" {
   health_check {
     interval            = 30
@@ -360,123 +221,6 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup4" {
   name        = "cms-amce-tg-port"
 }
 
-# resource "aws_api_gateway_rest_api" "ApiGatewayRestApi" {
-#   name           = "Transfer Custom Identity Provider basic template API"
-#   description    = "API used for GetUserConfig requests"
-#   api_key_source = "HEADER"
-#   endpoint_configuration {
-#     types = [
-#       "REGIONAL"
-#     ]
-#   }
-
-# }
-
-# resource "aws_api_gateway_method" "ApiGatewayMethod" {
-#   rest_api_id      = "uy0e4n4ug9"
-#   resource_id      = "vmm3c4"
-#   http_method      = "GET"
-#   authorization    = "AWS_IAM"
-#   api_key_required = false
-#   request_parameters = {
-#     "method.request.header.Password"      = false,
-#     "method.request.querystring.protocol" = false,
-#     "method.request.querystring.sourceIp" = false
-#   }
-# }
-
-# resource "aws_apigatewayv2_route" "ApiGatewayV2Route" {
-#   api_id             = "ddr1vbpvl9"
-#   api_key_required   = false
-#   authorization_type = "JWT"
-#   authorizer_id      = aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id
-#   route_key          = "PUT /api/patient-status"
-#   target             = "integrations/dz8dqg7"
-# }
-
-# resource "aws_apigatewayv2_route" "ApiGatewayV2Route2" {
-#   api_id             = "ddr1vbpvl9"
-#   api_key_required   = false
-#   authorization_type = "JWT"
-#   authorizer_id      = aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id
-#   route_key          = "GET /info/status"
-#   target             = "integrations/sj8bv1g"
-# }
-
-# resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration" {
-#   api_id                 = "ddr1vbpvl9"
-#   connection_type        = "INTERNET"
-#   integration_method     = "PUT"
-#   integration_type       = "HTTP_PROXY"
-#   integration_uri        = "http://alb-cms-service-1418322537.us-east-1.elb.amazonaws.com/api/patient-status"
-#   timeout_milliseconds   = 30000
-#   payload_format_version = "1.0"
-# }
-
-# resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration2" {
-#   api_id                 = "ddr1vbpvl9"
-#   connection_type        = "INTERNET"
-#   integration_method     = "GET"
-#   integration_type       = "HTTP_PROXY"
-#   integration_uri        = "http://alb-cms-service-1418322537.us-east-1.elb.amazonaws.com/info/status"
-#   timeout_milliseconds   = 30000
-#   payload_format_version = "1.0"
-# }
-
-# resource "aws_apigatewayv2_authorizer" "ApiGatewayV2Authorizer" {
-#   api_id          = "ddr1vbpvl9"
-#   authorizer_type = "JWT"
-#   identity_sources = [
-#     "$request.header.Authorization"
-#   ]
-#   name = "jwt-authorizer-cognito-cmsacme"
-#   jwt_configuration {
-#     audience = [
-#       "3fefcd1ms0kpug0uch8kmgtmat"
-#     ]
-#     issuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HwRgngsNx"
-#   }
-# }
-
-# resource "aws_api_gateway_model" "ApiGatewayModel" {
-#   rest_api_id  = "uy0e4n4ug9"
-#   name         = "Empty"
-#   description  = "This is a default empty schema model"
-#   schema       = <<EOF
-# {
-#   "$schema": "http://json-schema.org/draft-04/schema#",
-#   "title" : "Empty Schema",
-#   "type" : "object"
-# }
-# EOF
-#   content_type = "application/json"
-# }
-
-# resource "aws_api_gateway_model" "ApiGatewayModel2" {
-#   rest_api_id  = "uy0e4n4ug9"
-#   name         = "Error"
-#   description  = "This is a default error schema model"
-#   schema       = <<EOF
-# {
-#   "$schema" : "http://json-schema.org/draft-04/schema#",
-#   "title" : "Error Schema",
-#   "type" : "object",
-#   "properties" : {
-#     "message" : { "type" : "string" }
-#   }
-# }
-# EOF
-#   content_type = "application/json"
-# }
-
-# resource "aws_api_gateway_model" "ApiGatewayModel3" {
-#   rest_api_id  = "uy0e4n4ug9"
-#   name         = "UserConfigResponseModel"
-#   description  = "API response for GetUserConfig"
-#   schema       = "{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"title\":\"UserUserConfig\",\"type\":\"object\",\"properties\":{\"Role\":{\"type\":\"string\"},\"Policy\":{\"type\":\"string\"},\"HomeDirectory\":{\"type\":\"string\"},\"PublicKeys\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}"
-#   content_type = "application/json"
-# }
-
 resource "aws_cognito_user_pool" "CognitoUserPool" {
   name = "cms-acme-user-pool"
   password_policy {
@@ -500,10 +244,6 @@ resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
   ]
 }
 
-# resource "aws_iam_service_linked_role" "IAMServiceLinkedRole5" {
-#     aws_service_name = "ecs.amazonaws.com"
-# }
-
 resource "aws_ecs_service" "ECSService" {
   name    = "cms-amce-fargate-service"
   cluster = aws_ecs_cluster.ECSCluster.id
@@ -522,7 +262,7 @@ resource "aws_ecs_service" "ECSService" {
   network_configuration {
     assign_public_ip = true
     security_groups = [
-      "${aws_security_group.EC2SecurityGroup.id}"
+      "${aws_security_group.temp_sg.id}"
     ]
     subnets = [
       aws_subnet.EC2Subnet.id,
@@ -578,4 +318,18 @@ resource "aws_security_group" "temp_sg" {
   tags = {
     Name = "allow_tls"
   }
+}
+
+resource "aws_ecr_repository" "ECRRepository" {
+    name = "cms-acme"
+}
+
+resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
+    load_balancer_arn = aws_lb.ElasticLoadBalancingV2LoadBalancer.id
+    port = 80
+    protocol = "HTTP"
+    default_action {
+        target_group_arn = aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4.id
+        type = "forward"
+    }
 }
