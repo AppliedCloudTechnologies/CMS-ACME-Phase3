@@ -18,13 +18,17 @@ terraform -install-autocomplete
 sudo wget https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
 sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
 sudo yum install -y apache-maven
-sudo yum install -y java-1.8.0-devel
+sudo yum install -y java-17-amazon-corretto-devel
+sudo /usr/sbin/alternatives --set java /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/java
+sudo /usr/sbin/alternatives --set javac /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/javac
 
 
 sudo amazon-linux-extras install -y docker
 sudo service docker start
 sudo systemctl enable docker
 sudo usermod -a -G docker ec2-user
+
+
 
 
 
