@@ -380,23 +380,12 @@ resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
 resource "aws_apigatewayv2_deployment" "ApiGatewayV2Deployment" {
     api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
     description = "Automatic deployment triggered by changes to the Api configuration"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
 }
-
-# resource "aws_apigatewayv2_deployment" "example" {
-#   api_id      = aws_apigatewayv2_api.example.id
-#   description = "Example deployment"
-
-#   triggers = {
-#     redeployment = sha1(join(",", list(
-#       jsonencode(aws_apigatewayv2_integration.example),
-#       jsonencode(aws_apigatewayv2_route.example),
-#     )))
-#   }
-
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
 
 resource "aws_apigatewayv2_stage" "ApiGatewayV2Stage" {
     name = "$default"
@@ -435,22 +424,30 @@ resource "aws_apigatewayv2_route" "ApiGatewayV2Route2" {
     target = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration2.id}"
 }
 
+resource "aws_apigatewayv2_vpc_link" "example" {
+  name               = "example"
+  security_group_ids = [aws_security_group.temp_sg.id]
+  subnet_ids         = [aws_subnet.EC2Subnet.id, aws_subnet.EC2Subnet.id]
+}
+
 resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration" {
     api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    connection_type = "INTERNET"
+    connection_type    = "VPC_LINK"
+    connection_id      = aws_apigatewayv2_vpc_link.example.id
     integration_method = "PUT"
     integration_type = "HTTP_PROXY"
-    integration_uri = "http://alb-cms-service-1418322537.us-east-1.elb.amazonaws.com/api/patient-status"
+    integration_uri = aws_lb_listener.ElasticLoadBalancingV2Listener.arn
     timeout_milliseconds = 30000
     payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration2" {
     api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    connection_type = "INTERNET"
+    connection_type    = "VPC_LINK"
+    connection_id      = aws_apigatewayv2_vpc_link.example.id
     integration_method = "GET"
     integration_type = "HTTP_PROXY"
-    integration_uri = "http://alb-cms-service-1418322537.us-east-1.elb.amazonaws.com/info/status"
+    integration_uri = aws_lb_listener.ElasticLoadBalancingV2Listener.arn
     timeout_milliseconds = 30000
     payload_format_version = "1.0"
 }
@@ -466,7 +463,6 @@ resource "aws_apigatewayv2_authorizer" "ApiGatewayV2Authorizer" {
         audience = [
             "3fefcd1ms0kpug0uch8kmgtmat"
         ]
-        issuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HwRgngsNx"
+        issuer   = "https://${aws_cognito_user_pool.CognitoUserPool.endpoint}"
     }
 }
-
