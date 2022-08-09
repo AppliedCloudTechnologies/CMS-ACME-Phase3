@@ -224,29 +224,6 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup4" {
   name        = "cms-amce-tg-port"
 }
 
-resource "aws_cognito_user_pool" "CognitoUserPool" {
-  name = "cms-acme-user-pool"
-  password_policy {
-    minimum_length    = 8
-    require_lowercase = true
-    require_numbers   = true
-    require_symbols   = true
-    require_uppercase = true
-    temporary_password_validity_days = 7
-  }
-}
-
-resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
-  user_pool_id           = aws_cognito_user_pool.CognitoUserPool.id
-  name                   = "cms-acme-app"
-  refresh_token_validity = 30
-  explicit_auth_flows = [
-    "ALLOW_ADMIN_USER_PASSWORD_AUTH",
-    "ALLOW_REFRESH_TOKEN_AUTH",
-    "ALLOW_USER_SRP_AUTH"
-  ]
-}
-
 resource "aws_ecs_service" "ECSService" {
   enable_ecs_managed_tags = true
   name    = "cms-amce-fargate-service"
@@ -361,4 +338,135 @@ resource "aws_default_route_table" "default_route_table_cms" {
     gateway_id = aws_internet_gateway.EC2InternetGateway.id
   }
  }
+
+############################################
+#######################
+########################
+
+resource "aws_cognito_user_pool" "CognitoUserPool" {
+    name = "cms-acme-user-pool"
+    password_policy {
+        minimum_length = 8
+        temporary_password_validity_days = 7
+        require_lowercase = true
+        require_numbers = true
+        require_symbols = true
+        require_uppercase = true
+    }
+    auto_verified_attributes = [
+        "email"
+    ]
+    mfa_configuration = "OFF"
+    email_configuration {
+        
+    }
+    admin_create_user_config {
+        allow_admin_create_user_only = false
+    }
+   
+}
+
+resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
+    user_pool_id = "${aws_cognito_user_pool.CognitoUserPool.id}"
+    name = "cms-acme-app"
+    refresh_token_validity = 30
+    explicit_auth_flows = [
+        "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+        "ALLOW_REFRESH_TOKEN_AUTH",
+        "ALLOW_USER_SRP_AUTH"
+    ]
+}
+
+resource "aws_apigatewayv2_deployment" "ApiGatewayV2Deployment" {
+    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+    description = "Automatic deployment triggered by changes to the Api configuration"
+}
+
+# resource "aws_apigatewayv2_deployment" "example" {
+#   api_id      = aws_apigatewayv2_api.example.id
+#   description = "Example deployment"
+
+#   triggers = {
+#     redeployment = sha1(join(",", list(
+#       jsonencode(aws_apigatewayv2_integration.example),
+#       jsonencode(aws_apigatewayv2_route.example),
+#     )))
+#   }
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+resource "aws_apigatewayv2_stage" "ApiGatewayV2Stage" {
+    name = "$default"
+    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+
+    default_route_settings {
+        detailed_metrics_enabled = false
+    }
+    auto_deploy = true
+   
+}
+
+resource "aws_apigatewayv2_api" "ApiGatewayV2Api" {
+    api_key_selection_expression = "$request.header.x-api-key"
+    protocol_type = "HTTP"
+    route_selection_expression = "$request.method $request.path"
+    name = "cms-acme-api-gateway"
+   
+}
+
+resource "aws_apigatewayv2_route" "ApiGatewayV2Route" {
+    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+    api_key_required = false
+    authorization_type = "JWT"
+    authorizer_id = "${aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id}"
+    route_key = "PUT /api/patient-status"
+    target = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration.id}"
+}
+
+resource "aws_apigatewayv2_route" "ApiGatewayV2Route2" {
+    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+    api_key_required = false
+    authorization_type = "JWT"
+    authorizer_id = "${aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id}"
+    route_key = "GET /info/status"
+    target = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration2.id}"
+}
+
+resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration" {
+    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+    connection_type = "INTERNET"
+    integration_method = "PUT"
+    integration_type = "HTTP_PROXY"
+    integration_uri = "http://alb-cms-service-1418322537.us-east-1.elb.amazonaws.com/api/patient-status"
+    timeout_milliseconds = 30000
+    payload_format_version = "1.0"
+}
+
+resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration2" {
+    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+    connection_type = "INTERNET"
+    integration_method = "GET"
+    integration_type = "HTTP_PROXY"
+    integration_uri = "http://alb-cms-service-1418322537.us-east-1.elb.amazonaws.com/info/status"
+    timeout_milliseconds = 30000
+    payload_format_version = "1.0"
+}
+
+resource "aws_apigatewayv2_authorizer" "ApiGatewayV2Authorizer" {
+    api_id = aws_apigatewayv2_api.ApiGatewayV2Api.id
+    authorizer_type = "JWT"
+    identity_sources = [
+        "$request.header.Authorization"
+    ]
+    name = "jwt-authorizer-cognito-cmsacme"
+    jwt_configuration {
+        audience = [
+            "3fefcd1ms0kpug0uch8kmgtmat"
+        ]
+        issuer = "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HwRgngsNx"
+    }
+}
 
