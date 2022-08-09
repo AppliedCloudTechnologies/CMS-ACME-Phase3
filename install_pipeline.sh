@@ -30,11 +30,12 @@ sudo usermod -a -G docker ec2-user
 
 
 
-
-
-
-mkdir -p eul8cg8q55dvgxjz
-cd eul8cg8q55dvgxjz
+working_dir=$(pwd)
+aws_account_number=$(aws sts get-caller-identity --query "Account" --output text)
+cd $working_dir/cms-acme-api
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${aws_account_number}.dkr.ecr.us-east-1.amazonaws.com
+docker tag cms-acme:v1 ${aws_account_number}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1
+docker push ${aws_account_number}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1
 
 
 

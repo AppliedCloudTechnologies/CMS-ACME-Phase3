@@ -49,6 +49,7 @@ resource "aws_lb" "ElasticLoadBalancingV2LoadBalancer" {
   idle_timeout               = "60"
   enable_deletion_protection = "false"
   enable_http2               = "true"
+  depends_on = [aws_internet_gateway.EC2InternetGateway]
 }
 
 resource "aws_ecs_cluster" "ECSCluster" {
@@ -146,6 +147,8 @@ resource "aws_vpc" "EC2VPC" {
   enable_dns_support   = true
   enable_dns_hostnames = true
   instance_tenancy     = "default"
+  # default_route_table_id = aws_default_route_table.default_route_table_cms.id
+
 
 }
 
@@ -294,6 +297,21 @@ resource "aws_iam_role" "IAMRole" {
 
 }
 
+resource "aws_iam_role_policy_attachment" "IAMRole_ecsTaskExecutionRole_AmazonEC2ContainerRegistryFullAccess" {
+  role       = aws_iam_role.IAMRole.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "IAMRole_ecsTaskExecutionRole_CloudWatchLogsFullAccess" {
+  role       = aws_iam_role.IAMRole.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "IAMRole_ecsTaskExecutionRole_AmazonECS_FullAccess" {
+  role       = aws_iam_role.IAMRole.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
 resource "aws_security_group" "temp_sg" {
   name        = "temp_sg"
   description = "temp_sg"
@@ -334,3 +352,13 @@ resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
         type = "forward"
     }
 }
+
+resource "aws_default_route_table" "default_route_table_cms" {
+  default_route_table_id = aws_vpc.EC2VPC.default_route_table_id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.EC2InternetGateway.id
+  }
+ }
+
