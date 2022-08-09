@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "~> 4"
     }
   }
 }
@@ -11,8 +11,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_internet_gateway" "EC2InternetGateway" {
-    vpc_id = "${aws_vpc.EC2VPC.id}"
+  vpc_id = aws_vpc.EC2VPC.id
 }
 
 resource "aws_subnet" "EC2Subnet" {
@@ -49,7 +51,7 @@ resource "aws_lb" "ElasticLoadBalancingV2LoadBalancer" {
   idle_timeout               = "60"
   enable_deletion_protection = "false"
   enable_http2               = "true"
-  depends_on = [aws_internet_gateway.EC2InternetGateway]
+  depends_on                 = [aws_internet_gateway.EC2InternetGateway]
 }
 
 resource "aws_ecs_cluster" "ECSCluster" {
@@ -226,8 +228,8 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup4" {
 
 resource "aws_ecs_service" "ECSService" {
   enable_ecs_managed_tags = true
-  name    = "cms-amce-fargate-service"
-  cluster = aws_ecs_cluster.ECSCluster.id
+  name                    = "cms-amce-fargate-service"
+  cluster                 = aws_ecs_cluster.ECSCluster.id
   load_balancer {
     target_group_arn = aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4.id
     container_name   = "container-cms-api"
@@ -239,7 +241,7 @@ resource "aws_ecs_service" "ECSService" {
   task_definition                    = aws_ecs_task_definition.ECSTaskDefinition.arn
   deployment_maximum_percent         = 200
   deployment_minimum_healthy_percent = 100
-#   iam_role                           = aws_iam_service_linked_role.IAMServiceLinkedRole5.id
+  #   iam_role                           = aws_iam_service_linked_role.IAMServiceLinkedRole5.id
   network_configuration {
     assign_public_ip = true
     security_groups = [
@@ -255,7 +257,7 @@ resource "aws_ecs_service" "ECSService" {
 }
 
 resource "aws_ecs_task_definition" "ECSTaskDefinition" {
-  container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"656862533084.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
+      container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.CognitoUserPool.id}/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
   family                = "task-def-cms-api"
   execution_role_arn    = aws_iam_role.IAMRole.arn
   network_mode          = "awsvpc"
@@ -317,17 +319,17 @@ resource "aws_security_group" "temp_sg" {
 }
 
 resource "aws_ecr_repository" "ECRRepository" {
-    name = "cms-acme"
+  name = "cms-acme"
 }
 
 resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
-    load_balancer_arn = aws_lb.ElasticLoadBalancingV2LoadBalancer.id
-    port = 80
-    protocol = "HTTP"
-    default_action {
-        target_group_arn = aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4.id
-        type = "forward"
-    }
+  load_balancer_arn = aws_lb.ElasticLoadBalancingV2LoadBalancer.id
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    target_group_arn = aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4.id
+    type             = "forward"
+  }
 }
 
 resource "aws_default_route_table" "default_route_table_cms" {
@@ -337,132 +339,262 @@ resource "aws_default_route_table" "default_route_table_cms" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.EC2InternetGateway.id
   }
- }
+}
 
 ############################################
 #######################
 ########################
 
+resource "aws_cognito_user_pool_domain" "cms_acme_poc_v1" {
+  domain       = "cms-acme-poc-v1"
+  user_pool_id = aws_cognito_user_pool.CognitoUserPool.id
+}
+
+resource "aws_cognito_resource_server" "resource" {
+  identifier = "http://cms-acme-api-server-recource"
+  name       = "cms-acme-api-server-recource"
+
+    scope {
+    scope_name        = "patient-impact.read"
+    scope_description = "read patient admit record"
+  }
+
+    scope {
+    scope_name        = "patient-imact.update"
+    scope_description = "update patient admin record"
+  }
+
+  user_pool_id = aws_cognito_user_pool.CognitoUserPool.id
+}
+
 resource "aws_cognito_user_pool" "CognitoUserPool" {
-    name = "cms-acme-user-pool"
-    password_policy {
-        minimum_length = 8
-        temporary_password_validity_days = 7
-        require_lowercase = true
-        require_numbers = true
-        require_symbols = true
-        require_uppercase = true
+  name = "cms-acme-user-pool"
+  password_policy {
+    minimum_length                   = 8
+    temporary_password_validity_days = 7
+    require_lowercase                = true
+    require_numbers                  = true
+    require_symbols                  = true
+    require_uppercase                = true
+  }
+  auto_verified_attributes = [
+    "email"
+  ]
+  mfa_configuration = "OFF"
+  email_configuration {
+
+  }
+  admin_create_user_config {
+    allow_admin_create_user_only = false
+  }
+
+  username_configuration {
+    case_sensitive = false
+  }
+
+  account_recovery_setting {
+    recovery_mechanism {
+      name     = "verified_email"
+      priority = 1
     }
-    auto_verified_attributes = [
-        "email"
-    ]
-    mfa_configuration = "OFF"
-    email_configuration {
-        
+
+    recovery_mechanism {
+      name     = "verified_phone_number"
+      priority = 2
     }
-    admin_create_user_config {
-        allow_admin_create_user_only = false
+  }
+
+  schema {
+    name                     = "email"
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true # false for "sub"
+    required                 = true # true for "sub"
+    string_attribute_constraints {  # if it is a string
+      min_length = 0                # 10 for "birthdate"
+      max_length = 2048             # 10 for "birthdate"
     }
-   
+  }
+
+  schema {
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true
+    name                     = "facility_id"
+    string_attribute_constraints {
+      max_length = "256"
+      min_length = "1"
+    }
+    required = false
+  }
+
 }
 
 resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
-    user_pool_id = "${aws_cognito_user_pool.CognitoUserPool.id}"
-    name = "cms-acme-app"
-    refresh_token_validity = 30
-    explicit_auth_flows = [
-        "ALLOW_ADMIN_USER_PASSWORD_AUTH",
-        "ALLOW_REFRESH_TOKEN_AUTH",
-        "ALLOW_USER_SRP_AUTH"
-    ]
+  user_pool_id                         = aws_cognito_user_pool.CognitoUserPool.id
+  name                                 = "cms-acme-app"
+          token_validity_units {
+          access_token  = "minutes"
+          id_token      = "minutes"
+          refresh_token = "days"
+        }
+  access_token_validity = 60
+  id_token_validity = 60
+  refresh_token_validity               = 30
+  prevent_user_existence_errors = "ENABLED"
+  explicit_auth_flows = [
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH"
+  ]
+  read_attributes                               = [
+        "address",
+        "birthdate",
+        "custom:facility_id",
+        "email",
+        "email_verified",
+        "family_name",
+        "gender",
+        "given_name",
+        "locale",
+        "middle_name",
+        "name",
+        "nickname",
+        "phone_number",
+        "phone_number_verified",
+        "picture",
+        "preferred_username",
+        "profile",
+        "updated_at",
+        "website",
+        "zoneinfo",
+        ]
+     write_attributes                              = [
+        "address",
+        "birthdate",
+        "custom:facility_id",
+        "email",
+        "family_name",
+        "gender",
+        "given_name",
+        "locale",
+        "middle_name",
+        "name",
+        "nickname",
+        "phone_number",
+        "picture",
+        "preferred_username",
+        "profile",
+        "updated_at",
+        "website",
+        "zoneinfo",
+        ]
+
+allowed_oauth_flows                           = [
+      "code",
+      "implicit",
+        ]
+  allowed_oauth_flows_user_pool_client          = true
+allowed_oauth_scopes                          = [
+      "aws.cognito.signin.user.admin",
+      "email",
+      "openid",
+      "phone",
+      "profile",
+        ]
+supported_identity_providers                  = [
+      "COGNITO",
+        ]
+
 }
 
 resource "aws_apigatewayv2_deployment" "ApiGatewayV2Deployment" {
-    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    description = "Automatic deployment triggered by changes to the Api configuration"
+  api_id      = aws_apigatewayv2_api.ApiGatewayV2Api.id
+  description = "Automatic deployment triggered by changes to the Api configuration"
 
   lifecycle {
     create_before_destroy = true
   }
 
+  depends_on                 = [
+    aws_apigatewayv2_route.ApiGatewayV2Route,
+    aws_apigatewayv2_route.ApiGatewayV2Route2
+  ]
+
 }
 
 resource "aws_apigatewayv2_stage" "ApiGatewayV2Stage" {
-    name = "$default"
-    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
+  name   = "$default"
+  api_id = aws_apigatewayv2_api.ApiGatewayV2Api.id
 
-    default_route_settings {
-        detailed_metrics_enabled = false
-    }
-    auto_deploy = true
-   
+  default_route_settings {
+    detailed_metrics_enabled = false
+    throttling_burst_limit   = 5000
+    throttling_rate_limit    = 10000
+  }
+  auto_deploy = true
+
 }
 
 resource "aws_apigatewayv2_api" "ApiGatewayV2Api" {
-    api_key_selection_expression = "$request.header.x-api-key"
-    protocol_type = "HTTP"
-    route_selection_expression = "$request.method $request.path"
-    name = "cms-acme-api-gateway"
-   
+  api_key_selection_expression = "$request.header.x-api-key"
+  protocol_type                = "HTTP"
+  route_selection_expression   = "$request.method $request.path"
+  name                         = "cms-acme-api-gateway"
+
 }
 
 resource "aws_apigatewayv2_route" "ApiGatewayV2Route" {
-    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    api_key_required = false
-    authorization_type = "JWT"
-    authorizer_id = "${aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id}"
-    route_key = "PUT /api/patient-status"
-    target = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration.id}"
+  api_id             = aws_apigatewayv2_api.ApiGatewayV2Api.id
+  api_key_required   = false
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id
+  route_key          = "PUT /api/patient-status"
+  target             = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration.id}"
 }
 
 resource "aws_apigatewayv2_route" "ApiGatewayV2Route2" {
-    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    api_key_required = false
-    authorization_type = "JWT"
-    authorizer_id = "${aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id}"
-    route_key = "GET /info/status"
-    target = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration2.id}"
-}
-
-resource "aws_apigatewayv2_vpc_link" "example" {
-  name               = "example"
-  security_group_ids = [aws_security_group.temp_sg.id]
-  subnet_ids         = [aws_subnet.EC2Subnet.id, aws_subnet.EC2Subnet.id]
+  api_id             = aws_apigatewayv2_api.ApiGatewayV2Api.id
+  api_key_required   = false
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.ApiGatewayV2Authorizer.id
+  route_key          = "GET /info/status"
+  target             = "integrations/${aws_apigatewayv2_integration.ApiGatewayV2Integration2.id}"
 }
 
 resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration" {
-    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    connection_type    = "VPC_LINK"
-    connection_id      = aws_apigatewayv2_vpc_link.example.id
-    integration_method = "PUT"
-    integration_type = "HTTP_PROXY"
-    integration_uri = aws_lb_listener.ElasticLoadBalancingV2Listener.arn
-    timeout_milliseconds = 30000
-    payload_format_version = "1.0"
+  api_id                 = aws_apigatewayv2_api.ApiGatewayV2Api.id
+  connection_type = "INTERNET"
+  integration_method     = "PUT"
+  integration_type       = "HTTP_PROXY"
+  integration_uri        = "http://${aws_lb.ElasticLoadBalancingV2LoadBalancer.dns_name}/api/patient-status"
+  timeout_milliseconds   = 30000
+  payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration2" {
-    api_id = "${aws_apigatewayv2_api.ApiGatewayV2Api.id}"
-    connection_type    = "VPC_LINK"
-    connection_id      = aws_apigatewayv2_vpc_link.example.id
-    integration_method = "GET"
-    integration_type = "HTTP_PROXY"
-    integration_uri = aws_lb_listener.ElasticLoadBalancingV2Listener.arn
-    timeout_milliseconds = 30000
-    payload_format_version = "1.0"
+  api_id                 = aws_apigatewayv2_api.ApiGatewayV2Api.id
+  connection_type = "INTERNET"
+  integration_method     = "GET"
+  integration_type       = "HTTP_PROXY"
+  integration_uri        = "http://${aws_lb.ElasticLoadBalancingV2LoadBalancer.dns_name}/info/status"
+  timeout_milliseconds   = 30000
+  payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_authorizer" "ApiGatewayV2Authorizer" {
-    api_id = aws_apigatewayv2_api.ApiGatewayV2Api.id
-    authorizer_type = "JWT"
-    identity_sources = [
-        "$request.header.Authorization"
+  api_id          = aws_apigatewayv2_api.ApiGatewayV2Api.id
+  authorizer_type = "JWT"
+  identity_sources = [
+    "$request.header.Authorization"
+  ]
+  name = "jwt-authorizer-cognito-cmsacme"
+  jwt_configuration {
+    audience = [
+      aws_cognito_user_pool_client.CognitoUserPoolClient.id
     ]
-    name = "jwt-authorizer-cognito-cmsacme"
-    jwt_configuration {
-        audience = [
-            "3fefcd1ms0kpug0uch8kmgtmat"
-        ]
-        issuer   = "https://${aws_cognito_user_pool.CognitoUserPool.endpoint}"
-    }
+    issuer = "https://${aws_cognito_user_pool.CognitoUserPool.endpoint}"
+  }
 }
+
+
