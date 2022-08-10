@@ -67,3 +67,10 @@ v2/terraform.tfstate
 v2/terraform.tfstate.backup
 v2/terraform.tfstate
 v2/terraform.tfstate.backup
+step3_patient_admit_out.csv
+patient_admit_out.csv
+step0_patient_admit_out.csv
+step1_patient_admit_out.csv
+step2_patient_admit_out.csv
+v2/terraform.tfstate
+v2/terraform.tfstate.backup

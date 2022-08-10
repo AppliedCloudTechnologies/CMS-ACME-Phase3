@@ -7,6 +7,14 @@ terraform {
   }
 }
 
+
+# Outputs:
+# App client ID ag8krekn2kgnov01rnatssuf2
+# https://inp9espxok.execute-api.us-east-1.amazonaws.com
+# Amazon Cognito domain https://cms-acme-poc-v1.auth.us-east-1.amazoncognito.com
+# pool id Pool Id us-east-1_onPrEms4f
+# DNS name alb-cms-service-579504998.us-east-1.elb.amazonaws.com 
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -90,32 +98,32 @@ resource "aws_dynamodb_table" "DynamoDBTable2" {
   write_capacity = 1
 }
 
-resource "aws_dynamodb_table" "DynamoDBTable3" {
-  attribute {
-    name = "pat_id"
-    type = "S"
-  }
-  attribute {
-    name = "prov_nbr"
-    type = "S"
-  }
-  attribute {
-    name = "uuid"
-    type = "S"
-  }
-  name           = "patient_admit_out"
-  hash_key       = "uuid"
-  read_capacity  = 1
-  write_capacity = 1
-  global_secondary_index {
-    name            = "pat_id"
-    hash_key        = "pat_id"
-    range_key       = "prov_nbr"
-    projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
-  }
-}
+# resource "aws_dynamodb_table" "DynamoDBTable3" {
+#   attribute {
+#     name = "pat_id"
+#     type = "S"
+#   }
+#   attribute {
+#     name = "prov_nbr"
+#     type = "S"
+#   }
+#   attribute {
+#     name = "uuid"
+#     type = "S"
+#   }
+#   name           = "patient_admit_out"
+#   hash_key       = "uuid"
+#   read_capacity  = 1
+#   write_capacity = 1
+#   global_secondary_index {
+#     name            = "pat_id"
+#     hash_key        = "pat_id"
+#     range_key       = "prov_nbr"
+#     projection_type = "ALL"
+#     read_capacity   = 1
+#     write_capacity  = 1
+#   }
+# }
 
 resource "aws_dynamodb_table" "DynamoDBTable4" {
   attribute {
