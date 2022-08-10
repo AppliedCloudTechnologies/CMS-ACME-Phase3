@@ -3,7 +3,7 @@
    ![image](https://user-images.githubusercontent.com/110382909/184006628-dc6f22ee-5cd4-4c4e-842c-f9b60a5ae772.png)
 2.	The following API calls will be imported 
 ![image](https://user-images.githubusercontent.com/110382909/184008018-ac5dde30-a556-4988-afac-672016caa344.png)
-3.	Click on “CMS-ACME” \
+3.	Click on “CMS-ACME” 
 4.	Click on “Get New Access Token” to generate a new bearer token
 ![image](https://user-images.githubusercontent.com/110382909/184008483-025c92b9-3c51-49cb-984b-719b7730a52f.png)
 5.	You will be taken to the Cognito Login screen. Login with your provided credentials
