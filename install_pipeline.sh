@@ -38,6 +38,11 @@ docker tag cms-acme:v1 ${aws_account_number}.dkr.ecr.us-east-1.amazonaws.com/cms
 docker push ${aws_account_number}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1
 
 
+cp patient_admit_out.csv step0_patient_admit_out.csv
+sed '1s/^/uuid,/' step0_patient_admit_out.csv > step1_patient_admit_out.csv
+awk '{printf "\"%1s\",%s\n", NR-1,$0}' step1_patient_admit_out.csv > step2_patient_admit_out.csv
+tail -c +5 step2_patient_admit_out.csv > step3_patient_admit_out.csv
+aws s3 cp step3_patient_admit_out.csv s3://patientadmitout/patient_admit_out.csv
 
 
 https://docs.aws.amazon.com/neptune/latest/userguide/iam-auth-connect-prerq.html
