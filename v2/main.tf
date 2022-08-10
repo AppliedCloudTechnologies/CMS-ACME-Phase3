@@ -9,11 +9,13 @@ terraform {
 
 
 # Outputs:
-# App client ID ag8krekn2kgnov01rnatssuf2
+# App client ID aka Client ID aka Audience 2vr18e6rofm5brf92928iik902
 # https://inp9espxok.execute-api.us-east-1.amazonaws.com
 # Amazon Cognito domain https://cms-acme-poc-v1.auth.us-east-1.amazoncognito.com
+# https://cms-acme-poc-v1.auth.us-east-1.amazoncognito.com/oauth2/authorize
 # pool id Pool Id us-east-1_onPrEms4f
 # DNS name alb-cms-service-579504998.us-east-1.elb.amazonaws.com 
+# https://inp9espxok.execute-api.us-east-1.amazonaws.com/api/patient-status
 
 provider "aws" {
   region = "us-east-1"
@@ -82,22 +84,6 @@ resource "aws_dynamodb_table" "DynamoDBTable" {
   write_capacity = 1
 }
 
-resource "aws_dynamodb_table" "DynamoDBTable2" {
-  attribute {
-    name = "pat_id"
-    type = "S"
-  }
-  attribute {
-    name = "prov_nbr"
-    type = "S"
-  }
-  name           = "patient_status1"
-  hash_key       = "pat_id"
-  range_key      = "prov_nbr"
-  read_capacity  = 1
-  write_capacity = 1
-}
-
 # resource "aws_dynamodb_table" "DynamoDBTable3" {
 #   attribute {
 #     name = "pat_id"
@@ -124,33 +110,6 @@ resource "aws_dynamodb_table" "DynamoDBTable2" {
 #     write_capacity  = 1
 #   }
 # }
-
-resource "aws_dynamodb_table" "DynamoDBTable4" {
-  attribute {
-    name = "pat_id"
-    type = "S"
-  }
-  attribute {
-    name = "prov_nbr"
-    type = "S"
-  }
-  attribute {
-    name = "uuid"
-    type = "S"
-  }
-  name           = "patient_admit_out1"
-  hash_key       = "uuid"
-  read_capacity  = 1
-  write_capacity = 1
-  global_secondary_index {
-    name            = "pat_id"
-    hash_key        = "pat_id"
-    range_key       = "prov_nbr"
-    projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
-  }
-}
 
 resource "aws_vpc" "EC2VPC" {
   cidr_block           = "10.0.0.0/16"
@@ -260,12 +219,12 @@ resource "aws_ecs_service" "ECSService" {
       aws_subnet.EC2Subnet2.id
     ]
   }
-  health_check_grace_period_seconds = 0
+  health_check_grace_period_seconds = 60
   scheduling_strategy               = "REPLICA"
 }
 
 resource "aws_ecs_task_definition" "ECSTaskDefinition" {
-      container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.CognitoUserPool.id}/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
+      container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"us-east-1\"},{\"name\":\"AWS_SECRET_KEY\",\"value\":\"fk5fN2kdQOEaW9bWFoeoiilwlc10ehYN0NJQER8z\"},{\"name\":\"AWS_ACCESS_KEY\",\"value\":\"AKIAZR4AO2XOO3DQMK4K\"},{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.CognitoUserPool.id}/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
   family                = "task-def-cms-api"
   execution_role_arn    = aws_iam_role.IAMRole.arn
   network_mode          = "awsvpc"
