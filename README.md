@@ -1,13 +1,45 @@
-Prerequisites
-1. The tool server (aka bastion host) (aka jump box) has access to the internet
-2. Must use the us-east-1 region
+# ACME - Pateient Impact API
 
-Intall Script
-1. install_pipeline.sh
+## Prerequisites
+- In your EC2 instance, ensure it has access to the internet and a Public IPv4 address
+- Ensure you have an AWS instance and are working within the us-east-1 region.
+
+## Installation
+- Ensure yum packages are up to date
+  ```
+  sudo yum -y update
+  ```
+- Install git if its not already installed
+  ```
+  sudo yum -y install git
+  ```
+- Clone down the repo
+  ```
+  git clone https://github.com/AppliedCloudTechnologies/CMS-ACME-Phase3.git
+  ```
+- Change into project
+  ```
+  cd CMS-ACME-Phase3/
+  ```
+- Move into terraform directory 
+  ```
+  cd terraform
+  ```
+- Make scripts executable
+  ```
+  chmod 700 install_pipeline.sh
+  ```
+- Initialize project setup
+  ```
+  sh install_pipeline.sh
+  ```
+
 
 Manual Steps
 1. terraform output
 2. terraform output -json | jq -r '.Password.value | values'
+
+## Project Cleanup
 
 Cleanup Script
 1. cleanup_pipeline.sh
