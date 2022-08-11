@@ -17,4 +17,3 @@ sudo usermod -a -G docker ec2-user
 
 chmod +x seed_data.sh
 chmod +x cleanup.sh
-./seed_data.sh
