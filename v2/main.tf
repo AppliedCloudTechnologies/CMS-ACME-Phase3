@@ -47,10 +47,6 @@ output "Username" {
   value = aws_cognito_user.username.username
 }
 
-output "Password" {
-  value = "Password1!"
-}
-
 resource "aws_iam_user" "IAMUser" {
     path = "/"
     name = "api"
@@ -373,9 +369,7 @@ resource "aws_cognito_user" "username" {
     "facility_id"    = "31619"
   }
 
-  password = "Pa${random_id.id.hex}1!"
-
-  depends_on = [aws_cognito_user_pool.CognitoUserPool]
+    depends_on = [aws_cognito_user_pool.CognitoUserPool]
 
 }
 
