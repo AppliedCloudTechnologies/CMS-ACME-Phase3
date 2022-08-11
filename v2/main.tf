@@ -7,21 +7,56 @@ terraform {
   }
 }
 
-
-# Outputs:
-# App client ID aka Client ID aka Audience 2vr18e6rofm5brf92928iik902
-# https://inp9espxok.execute-api.us-east-1.amazonaws.com
-# Amazon Cognito domain https://cms-acme-poc-v1.auth.us-east-1.amazoncognito.com
-# https://cms-acme-poc-v1.auth.us-east-1.amazoncognito.com/oauth2/authorize
-# pool id Pool Id us-east-1_onPrEms4f
-# DNS name alb-cms-service-579504998.us-east-1.elb.amazonaws.com 
-# https://inp9espxok.execute-api.us-east-1.amazonaws.com/api/patient-status
-
 provider "aws" {
   region = "us-east-1"
 }
 
 data "aws_caller_identity" "current" {}
+
+output "Callback_URL" {
+  value = "https://www.example.com/callback"
+}
+
+output "Auth_URL"{
+  value = "https://${aws_cognito_user_pool_domain.cms_acme_poc_v1.domain}.auth.us-east-1.amazoncognito.com/oauth2/authorize"
+}
+
+output "Client_ID_aka_Audience" {
+  value = aws_cognito_user_pool_client.CognitoUserPoolClient.id  
+}
+
+output "Status-Info" {
+  value = "${aws_apigatewayv2_stage.ApiGatewayV2Stage.invoke_url}info/status"
+}
+
+output "Update-Patient-Status" {
+  value = "${aws_apigatewayv2_stage.ApiGatewayV2Stage.invoke_url}api/patient-status"
+}
+
+output "User-Info-AWS-Cognito" {
+  value = "${aws_apigatewayv2_stage.ApiGatewayV2Stage.invoke_url}oauth2/userInfo"
+}
+
+output "Username" {
+  value = aws_cognito_user.username.username
+}
+
+output "Password" {
+  value = "Password1!"
+}
+
+resource "aws_iam_user" "IAMUser" {
+    path = "/"
+    name = "api"
+}
+
+resource "aws_iam_access_key" "IAMAccessKey" {
+    status = "Active"
+    user = aws_iam_user.IAMUser.name
+
+depends_on = [aws_iam_user.IAMUser]
+
+}
 
 resource "aws_internet_gateway" "EC2InternetGateway" {
   vpc_id = aws_vpc.EC2VPC.id
@@ -224,7 +259,7 @@ resource "aws_ecs_service" "ECSService" {
 }
 
 resource "aws_ecs_task_definition" "ECSTaskDefinition" {
-      container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"us-east-1\"},{\"name\":\"AWS_SECRET_KEY\",\"value\":\"fk5fN2kdQOEaW9bWFoeoiilwlc10ehYN0NJQER8z\"},{\"name\":\"AWS_ACCESS_KEY\",\"value\":\"AKIAZR4AO2XOO3DQMK4K\"},{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.CognitoUserPool.id}/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
+  container_definitions = "[{\"name\":\"container-cms-api\",\"image\":\"${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1\",\"cpu\":0,\"portMappings\":[{\"containerPort\":8081,\"hostPort\":8081,\"protocol\":\"tcp\"}],\"essential\":true,\"environment\":[{\"name\":\"AWS_REGION\",\"value\":\"us-east-1\"},{\"name\":\"AWS_SECRET_KEY\",\"value\":\"${aws_iam_access_key.IAMAccessKey.secret}\"},{\"name\":\"AWS_ACCESS_KEY\",\"value\":\"${aws_iam_access_key.IAMAccessKey.id}\"},{\"name\":\"JWT_JWKS_URI\",\"value\":\"https://cognito-idp.us-east-1.amazonaws.com/${aws_cognito_user_pool.CognitoUserPool.id}/.well-known/jwks.json\"}],\"mountPoints\":[],\"volumesFrom\":[],\"logConfiguration\":{\"logDriver\":\"awslogs\",\"options\":{\"awslogs-group\":\"/ecs/task-def-cms-api\",\"awslogs-region\":\"us-east-1\",\"awslogs-stream-prefix\":\"ecs\"}}}]"
   family                = "task-def-cms-api"
   execution_role_arn    = aws_iam_role.IAMRole.arn
   network_mode          = "awsvpc"
@@ -287,6 +322,7 @@ resource "aws_security_group" "temp_sg" {
 
 resource "aws_ecr_repository" "ECRRepository" {
   name = "cms-acme"
+  force_delete = true
 }
 
 resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
@@ -308,9 +344,21 @@ resource "aws_default_route_table" "default_route_table_cms" {
   }
 }
 
-############################################
-#######################
-########################
+resource "aws_cognito_user" "username" {
+  user_pool_id = aws_cognito_user_pool.CognitoUserPool.id
+  username     = "username"
+
+  attributes = {
+    "email"          = "email@example.com"
+    "email_verified" = "true"
+    "facility_id"    = "31619"
+  }
+
+  password = "Password1!"
+
+  depends_on = [aws_cognito_user_pool.CognitoUserPool]
+
+}
 
 resource "aws_cognito_user_pool_domain" "cms_acme_poc_v1" {
   domain       = "cms-acme-poc-v1"
@@ -321,12 +369,12 @@ resource "aws_cognito_resource_server" "resource" {
   identifier = "http://cms-acme-api-server-recource"
   name       = "cms-acme-api-server-recource"
 
-    scope {
+  scope {
     scope_name        = "patient-impact.read"
     scope_description = "read patient admit record"
   }
 
-    scope {
+  scope {
     scope_name        = "patient-imact.update"
     scope_description = "update patient admin record"
   }
@@ -398,80 +446,82 @@ resource "aws_cognito_user_pool" "CognitoUserPool" {
 }
 
 resource "aws_cognito_user_pool_client" "CognitoUserPoolClient" {
-  user_pool_id                         = aws_cognito_user_pool.CognitoUserPool.id
-  name                                 = "cms-acme-app"
-          token_validity_units {
-          access_token  = "minutes"
-          id_token      = "minutes"
-          refresh_token = "days"
-        }
-  access_token_validity = 60
-  id_token_validity = 60
-  refresh_token_validity               = 30
+  user_pool_id = aws_cognito_user_pool.CognitoUserPool.id
+  name         = "cms-acme-app"
+  token_validity_units {
+    access_token  = "minutes"
+    id_token      = "minutes"
+    refresh_token = "days"
+  }
+  callback_urls                 = ["https://www.example.com/callback"]
+  logout_urls                   = ["https://www.example.com/signout"]
+  access_token_validity         = 60
+  id_token_validity             = 60
+  refresh_token_validity        = 30
   prevent_user_existence_errors = "ENABLED"
   explicit_auth_flows = [
     "ALLOW_ADMIN_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_SRP_AUTH"
   ]
-  read_attributes                               = [
-        "address",
-        "birthdate",
-        "custom:facility_id",
-        "email",
-        "email_verified",
-        "family_name",
-        "gender",
-        "given_name",
-        "locale",
-        "middle_name",
-        "name",
-        "nickname",
-        "phone_number",
-        "phone_number_verified",
-        "picture",
-        "preferred_username",
-        "profile",
-        "updated_at",
-        "website",
-        "zoneinfo",
-        ]
-     write_attributes                              = [
-        "address",
-        "birthdate",
-        "custom:facility_id",
-        "email",
-        "family_name",
-        "gender",
-        "given_name",
-        "locale",
-        "middle_name",
-        "name",
-        "nickname",
-        "phone_number",
-        "picture",
-        "preferred_username",
-        "profile",
-        "updated_at",
-        "website",
-        "zoneinfo",
-        ]
+  read_attributes = [
+    "address",
+    "birthdate",
+    "custom:facility_id",
+    "email",
+    "email_verified",
+    "family_name",
+    "gender",
+    "given_name",
+    "locale",
+    "middle_name",
+    "name",
+    "nickname",
+    "phone_number",
+    "phone_number_verified",
+    "picture",
+    "preferred_username",
+    "profile",
+    "updated_at",
+    "website",
+    "zoneinfo",
+  ]
+  write_attributes = [
+    "address",
+    "birthdate",
+    "custom:facility_id",
+    "email",
+    "family_name",
+    "gender",
+    "given_name",
+    "locale",
+    "middle_name",
+    "name",
+    "nickname",
+    "phone_number",
+    "picture",
+    "preferred_username",
+    "profile",
+    "updated_at",
+    "website",
+    "zoneinfo",
+  ]
 
-allowed_oauth_flows                           = [
-      "code",
-      "implicit",
-        ]
-  allowed_oauth_flows_user_pool_client          = true
-allowed_oauth_scopes                          = [
-      "aws.cognito.signin.user.admin",
-      "email",
-      "openid",
-      "phone",
-      "profile",
-        ]
-supported_identity_providers                  = [
-      "COGNITO",
-        ]
+  allowed_oauth_flows = [
+    "code",
+    "implicit",
+  ]
+  allowed_oauth_flows_user_pool_client = true
+  allowed_oauth_scopes = [
+    "aws.cognito.signin.user.admin",
+    "email",
+    "openid",
+    "phone",
+    "profile",
+  ]
+  supported_identity_providers = [
+    "COGNITO",
+  ]
 
 }
 
@@ -483,7 +533,7 @@ resource "aws_apigatewayv2_deployment" "ApiGatewayV2Deployment" {
     create_before_destroy = true
   }
 
-  depends_on                 = [
+  depends_on = [
     aws_apigatewayv2_route.ApiGatewayV2Route,
     aws_apigatewayv2_route.ApiGatewayV2Route2
   ]
@@ -531,7 +581,7 @@ resource "aws_apigatewayv2_route" "ApiGatewayV2Route2" {
 
 resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration" {
   api_id                 = aws_apigatewayv2_api.ApiGatewayV2Api.id
-  connection_type = "INTERNET"
+  connection_type        = "INTERNET"
   integration_method     = "PUT"
   integration_type       = "HTTP_PROXY"
   integration_uri        = "http://${aws_lb.ElasticLoadBalancingV2LoadBalancer.dns_name}/api/patient-status"
@@ -541,7 +591,7 @@ resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration" {
 
 resource "aws_apigatewayv2_integration" "ApiGatewayV2Integration2" {
   api_id                 = aws_apigatewayv2_api.ApiGatewayV2Api.id
-  connection_type = "INTERNET"
+  connection_type        = "INTERNET"
   integration_method     = "GET"
   integration_type       = "HTTP_PROXY"
   integration_uri        = "http://${aws_lb.ElasticLoadBalancingV2LoadBalancer.dns_name}/info/status"
