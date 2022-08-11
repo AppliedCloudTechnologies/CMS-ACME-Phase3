@@ -21,31 +21,6 @@
         }
     },
     "Resources": {
-        "DynamoDBTable":{
-            "Type": "AWS::DynamoDB::Table",
-            "Properties":{
-                "TableName": {"Ref" : "DynamoDBTableName"},
-                "BillingMode": "PAY_PER_REQUEST",
-                "AttributeDefinitions":[
-                    {
-                        "AttributeName": "uuid",
-                        "AttributeType": "S"
-                    }
-                ],
-                "KeySchema":[
-                    {
-                        "AttributeName": "uuid",
-                        "KeyType": "HASH"
-                    }
-                ],
-                "Tags":[
-                    {
-                        "Key": "Name",
-                        "Value": {"Ref" : "DynamoDBTableName"}
-                    }
-                ]
-            }
-        },
         "LambdaRole" : {
           "Type" : "AWS::IAM::Role",
           "Properties" : {
