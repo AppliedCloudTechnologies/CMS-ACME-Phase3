@@ -38,6 +38,11 @@ output "Password" {
   sensitive = true
 }
 
+
+output "local_BucketName" {
+  value = local.BucketName
+}
+
 resource "aws_iam_user" "IAMUser" {
     path = "/"
     name = "api"
@@ -229,7 +234,6 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup4" {
 }
 
 resource "aws_ecs_service" "ECSService" {
-  enable_ecs_managed_tags = true
   name                    = "cms-amce-fargate-service"
   cluster                 = aws_ecs_cluster.ECSCluster.id
   load_balancer {
@@ -546,6 +550,7 @@ resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
   load_balancer_arn = aws_lb.ElasticLoadBalancingV2LoadBalancer.id
   port              = 80
   protocol          = "HTTP"
+  # ssl_policy        = ""
   default_action {
     target_group_arn = aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4.id
     type             = "forward"
