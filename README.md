@@ -3,14 +3,14 @@ Prerequisites
 2. Must use the us-east-1 region
 
 Intall Script
-install_pipeline.sh
+1. install_pipeline.sh
 
 Manual Steps
-terraform output
-terraform output -json | jq -r '.Password.value | values'
+1. terraform output
+2. terraform output -json | jq -r '.Password.value | values'
 
 Cleanup Script
-cleanup_pipeline.sh
+1. cleanup_pipeline.sh
  
  ACME API TESTING
  1. Import collection or API data
