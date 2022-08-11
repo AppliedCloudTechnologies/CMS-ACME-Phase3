@@ -281,7 +281,8 @@ resource "aws_ecs_task_definition" "ECSTaskDefinition" {
 
 depends_on = [
   aws_iam_access_key.IAMAccessKey,
-  aws_cognito_user_pool.CognitoUserPool
+  aws_cognito_user_pool.CognitoUserPool,
+  aws_ecr_repository.ECRRepository
 ]
 
 }
