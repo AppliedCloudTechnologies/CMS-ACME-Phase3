@@ -13,6 +13,12 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
+resource "random_id" "id" {
+	  byte_length = 8
+}
+
+# ${random_id.id.hex}
+
 output "Callback_URL" {
   value = "https://www.example.com/callback"
 }
@@ -127,32 +133,31 @@ resource "aws_dynamodb_table" "DynamoDBTable" {
   write_capacity = 1
 }
 
-# resource "aws_dynamodb_table" "DynamoDBTable3" {
-#   attribute {
-#     name = "pat_id"
-#     type = "S"
-#   }
-#   attribute {
-#     name = "prov_nbr"
-#     type = "S"
-#   }
-#   attribute {
-#     name = "uuid"
-#     type = "S"
-#   }
-#   name           = "patient_admit_out"
-#   hash_key       = "uuid"
-#   read_capacity  = 1
-#   write_capacity = 1
-#   global_secondary_index {
-#     name            = "pat_id"
-#     hash_key        = "pat_id"
-#     range_key       = "prov_nbr"
-#     projection_type = "ALL"
-#     read_capacity   = 1
-#     write_capacity  = 1
-#   }
-# }
+resource "aws_dynamodb_table" "dynamo_db_table" {
+ attribute {
+        name = "pat_id"
+        type = "S"
+    }
+    attribute {
+        name = "prov_nbr"
+        type = "S"
+    }
+    attribute {
+        name = "uuid"
+        type = "S"
+    }
+    billing_mode = "PAY_PER_REQUEST"
+    name = "patient_admit_out"
+    hash_key = "uuid"
+    global_secondary_index {
+        name = "pat_id"
+        hash_key = "pat_id"
+        range_key = "prov_nbr"
+        projection_type = "ALL"
+        read_capacity = 0
+        write_capacity = 0
+    }
+}
 
 resource "aws_vpc" "EC2VPC" {
   cidr_block           = "10.0.0.0/16"
@@ -368,14 +373,14 @@ resource "aws_cognito_user" "username" {
     "facility_id"    = "31619"
   }
 
-  password = "Password1!"
+  password = "Pa${random_id.id.hex}1!"
 
   depends_on = [aws_cognito_user_pool.CognitoUserPool]
 
 }
 
 resource "aws_cognito_user_pool_domain" "cms_acme_poc_v1" {
-  domain       = "cms-acme-poc-v1"
+  domain       = "cms-acme-poc-${random_id.id.hex}"
   user_pool_id = aws_cognito_user_pool.CognitoUserPool.id
 }
 
