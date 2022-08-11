@@ -1,3 +1,17 @@
+Prerequisites
+1. The tool server (aka bastion host) (aka jump box) has access to the internet
+2. Must use the us-east-1 region
+
+Intall Script
+install_pipeline.sh
+
+Manual Steps
+terraform output
+terraform output -json | jq -r '.Password.value | values'
+
+Cleanup Script
+cleanup_pipeline.sh
+ 
  ACME API TESTING
  1. Import collection or API data
    ![image](https://user-images.githubusercontent.com/110382909/184006628-dc6f22ee-5cd4-4c4e-842c-f9b60a5ae772.png)
