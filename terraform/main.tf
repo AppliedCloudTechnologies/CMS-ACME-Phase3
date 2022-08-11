@@ -17,12 +17,6 @@ resource "random_id" "id" {
 	  byte_length = 8
 }
 
-# ${random_id.id.hex}
-
-output "Callback_URL" {
-  value = "https://www.example.com/callback"
-}
-
 output "Auth_URL"{
   value = "https://${aws_cognito_user_pool_domain.cms_acme_poc_v1.domain}.auth.us-east-1.amazoncognito.com/oauth2/authorize"
 }
@@ -42,10 +36,6 @@ output "Username" {
 output "Password" {
   value = aws_cognito_user.username.password
   sensitive = true
-}
-
-output "local_BucketName" {
-  value = local.BucketName
 }
 
 resource "aws_iam_user" "IAMUser" {
@@ -282,7 +272,9 @@ resource "aws_ecs_task_definition" "ECSTaskDefinition" {
 depends_on = [
   aws_iam_access_key.IAMAccessKey,
   aws_cognito_user_pool.CognitoUserPool,
-  aws_ecr_repository.ECRRepository
+  aws_ecr_repository.ECRRepository,
+  aws_cloudformation_stack.csv_import,
+  aws_dynamodb_table.dynamo_db_table
 ]
 
 }
@@ -492,6 +484,12 @@ resource "aws_cloudformation_stack" "csv_import" {
     }
 }
 STACK
+
+
+    provisioner "local-exec" {
+    command = "chmod +x seed_data.sh && ./seed_data.sh"
+  }
+
 
 depends_on = [aws_dynamodb_table.dynamo_db_table]
 
