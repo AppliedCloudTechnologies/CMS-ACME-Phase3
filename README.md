@@ -1,8 +1,10 @@
 # ACME - Pateient Impact API
 
 ## Prerequisites
-- In your EC2 instance, ensure it has access to the internet and a Public IPv4 address
 - Ensure you have an AWS instance and are working within the us-east-1 region.
+- Create a new policy in IAM
+- add json policy from `/path` as the whatever
+- In your EC2 instance, ensure it has access to the internet and a Public IPv4 address and attache role created to instance.
 
 ## Installation
 - Ensure yum packages are up to date
@@ -32,6 +34,10 @@
 - Initialize project setup
   ```
   sh install_pipeline.sh
+  ```
+- Seed patient data
+  ```
+  sh seed_data.sh
   ```
 
 
