@@ -58,6 +58,14 @@ depends_on = [aws_iam_user.IAMUser]
 
 }
 
+resource "aws_iam_user_policy_attachment" "IAMUser_api_attach" {
+  user       = aws_iam_user.IAMUser.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+
+depends_on = [aws_iam_user.IAMUser]
+
+}
+
 resource "aws_internet_gateway" "EC2InternetGateway" {
   vpc_id = aws_vpc.EC2VPC.id
 }
@@ -268,6 +276,12 @@ resource "aws_ecs_task_definition" "ECSTaskDefinition" {
   ]
   cpu    = "512"
   memory = "1024"
+
+depends_on = [
+  aws_iam_access_key.IAMAccessKey,
+  aws_cognito_user_pool.CognitoUserPool
+]
+
 }
 
 resource "aws_iam_role" "IAMRole" {
