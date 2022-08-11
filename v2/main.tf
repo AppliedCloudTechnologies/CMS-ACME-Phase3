@@ -31,20 +31,21 @@ output "Client_ID_aka_Audience" {
   value = aws_cognito_user_pool_client.CognitoUserPoolClient.id  
 }
 
-output "Status-Info" {
-  value = "${aws_apigatewayv2_stage.ApiGatewayV2Stage.invoke_url}info/status"
-}
-
 output "Update-Patient-Status" {
   value = "${aws_apigatewayv2_stage.ApiGatewayV2Stage.invoke_url}api/patient-status"
 }
 
-output "User-Info-AWS-Cognito" {
-  value = "${aws_apigatewayv2_stage.ApiGatewayV2Stage.invoke_url}oauth2/userInfo"
-}
-
 output "Username" {
   value = aws_cognito_user.username.username
+}
+
+output "Password" {
+  value = aws_cognito_user.username.password
+  sensitive = true
+}
+
+output "local_BucketName" {
+  value = local.BucketName
 }
 
 resource "aws_iam_user" "IAMUser" {
@@ -293,13 +294,17 @@ resource "aws_iam_role" "IAMRole" {
 
 }
 
+locals {
+  BucketName = "csvtoddblambdafunction${random_id.id.hex}"
+}
+
 resource "aws_cloudformation_stack" "csv_import" {
   name = "csv-import"
 
   capabilities = ["CAPABILITY_IAM", "CAPABILITY_AUTO_EXPAND"]
 
   parameters = {
-    BucketName = "csvtoddblambdafunction",
+    BucketName = "${local.BucketName}",
     FileName = "patient_admit_out.csv",
     DynamoDBTableName = "patient_admit_out"
   }
@@ -557,9 +562,16 @@ resource "aws_default_route_table" "default_route_table_cms" {
   }
 }
 
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 resource "aws_cognito_user" "username" {
   user_pool_id = aws_cognito_user_pool.CognitoUserPool.id
   username     = "username"
+  password = random_password.password.result
 
   attributes = {
     "email"          = "email@example.com"

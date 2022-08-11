@@ -9,7 +9,7 @@ sudo yum update -y
 sudo yum install -y yum-utils git
 sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
 sudo yum -y install terraform
-sudo yum -y install java
+sudo yum -y install jq
 terraform -install-autocomplete
 
 
