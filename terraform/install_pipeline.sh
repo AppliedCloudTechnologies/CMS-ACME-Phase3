@@ -1,5 +1,5 @@
 sudo yum -y update
-sudo yum -y install yum-utils git
+sudo yum -y install yum-utils 
 sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
 sudo yum-config-manager --add-repo https://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo
 # sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
@@ -15,3 +15,6 @@ sudo /usr/sbin/alternatives --set javac /usr/lib/jvm/java-17-amazon-corretto.x86
 sudo service docker start
 sudo systemctl enable docker
 sudo usermod -a -G docker ec2-user
+
+chmod +x seed_data.sh
+./seed_data.sh
