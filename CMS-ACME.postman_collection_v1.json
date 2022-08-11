@@ -1,0 +1,169 @@
+{
+	"info": {
+		"_postman_id": "3bf8e712-cce0-4c77-8db2-bd941e3a1a8d",
+		"name": "CMS-ACME",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Status-Info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/info/status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"info",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Patient Status",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJraWQiOiJZdTVyMitMa2oxVDR6ZlFzZFB4XC8za1RYcU9vV3Zsd2ppYTM2ZUx5NkRtRT0iLCJhbGciOiJSUzI1NiJ9.eyJhdF9oYXNoIjoiV2hFRWUwUHZaeUhJd2Z2RjRiOGZ3ZyIsInN1YiI6IjU4MWExM2FkLTEwODgtNGEwNC1hMGUzLTMxNzdjMTljNGJlYSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV9Id1JnbmdzTngiLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOnRydWUsImNvZ25pdG86dXNlcm5hbWUiOiJkYmhha3VuaSIsImN1c3RvbTpmYWNpbGl0eV9pZCI6IjU3OTIiLCJhdWQiOiIzZmVmY2QxbXMwa3B1ZzB1Y2g4a21ndG1hdCIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjU5NjEzMDg0LCJwaG9uZV9udW1iZXIiOiIrMTk3MTY0NDI5MjgiLCJleHAiOjE2NTk2MTY2ODQsImlhdCI6MTY1OTYxMzA4NCwianRpIjoiNmI5MTVlNTAtYzQyZS00YWE1LWI4YTMtYmZkZjVlNzI5MTJlIiwiZW1haWwiOiJkaWd2aWpheS5iaGFrdW5pQHRldHJ1c2NvcnAuY29tIn0.XAUKJRD-VFQtBddPuAgQu2X99_6DTckYW9IG_qUbXiyCteFFuVYjMg1xdbQoNGowbDml0mRN3nnFXUsfUKnFCsUenCK-VS-kiJohDkzHCfP5ZxqGutTNiyiMzhT6JRB3NYKyiOh88MuEljW02cFmXLzT3V1Ojt9Wn1WFbNiCJLHSR2-7SpvtU2LXokQdZoCPXiIEXlYFQ2hwFmtN9iRCMsac3v1fbtTAyOu0OFZH4Fx5GJxh-LSgdfXeqKWQ4cLYPmi8_iiDrUDEjZFD9-c6zD6XD4kfeBo7U5eF-_ll0vUBVLCg25XC66W-5kpTk0QXgTCP_okKwwckbznXjcvkTw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"pat_id\": \"926\",\r\n    \"prov_nbr\": \"5792\",\r\n    \"disaster_type\": \"TORNADO\",\r\n    \"status\": \"INJURED\",\r\n    \"notes\": \"Patient admitted UPDATE.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/patient-admit",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"patient-admit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User-Info-AWS-Cognito",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://cms-acme-poc.auth.us-east-1.amazoncognito.com/oauth2/userInfo",
+					"protocol": "https",
+					"host": [
+						"cms-acme-poc",
+						"auth",
+						"us-east-1",
+						"amazoncognito",
+						"com"
+					],
+					"path": [
+						"oauth2",
+						"userInfo"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "tokenName",
+				"value": "id_token",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "openid profile",
+				"type": "string"
+			},
+			{
+				"key": "audience",
+				"value": {
+					"2d29fdf8-52f7-42a8-9d31-b23872788796": "3fefcd1ms0kpug0uch8kmgtmat"
+				},
+				"type": "any"
+			},
+			{
+				"key": "grant_type",
+				"value": "implicit",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "body",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "3fefcd1ms0kpug0uch8kmgtmat",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "https://cms-acme-poc.auth.us-east-1.amazoncognito.com/oauth2/token",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "https://www.example.com/callback",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "https://cms-acme-poc.auth.us-east-1.amazoncognito.com/oauth2/authorize",
+				"type": "string"
+			},
+			{
+				"key": "useBrowser",
+				"value": false,
+				"type": "boolean"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
