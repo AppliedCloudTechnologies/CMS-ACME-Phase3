@@ -41,22 +41,47 @@
   ```
 
 
-Manual Steps
-1. terraform output
-2. terraform output -json | jq -r '.Password.value | values'
+## Get Environment Variable
+Run the following command to view environment variables needed for API testing
 
-## Project Cleanup
+```
+clear && terraform output && echo "########" && echo "User Password:" && terraform output -json |  jq -r '.Password.value | values'
+```
 
-Cleanup Script
-1. cleanup_pipeline.sh
+You should be presented with values needed to test the api in postman.
  
- ACME API TESTING
- 1. Import collection or API data
+## ACME API TESTING
+Once you have deployed your solution you can test the user flow and api endpoints, we would suggest using postman to test the api functionality. Postman is an API platform for building and using APIs. [postman](https://postman.com) You can test the api functionality in postman by following the instructions below.
+
+// add screenshots and import raw url: https://raw.githubusercontent.com/AppliedCloudTechnologies/CMS-ACME-Phase3/main/CMS-ACME.postman_collection_v1.json
+
+
+ 1. Import collection or API data provided for you at [/CMS-ACME.postman_collection_v1.json](https://raw.githubusercontent.com/AppliedCloudTechnologies/CMS-ACME-Phase3/main/CMS-ACME.postman_collection_v1.json) 
+
    ![image](https://user-images.githubusercontent.com/110382909/184006628-dc6f22ee-5cd4-4c4e-842c-f9b60a5ae772.png)
+
 2.	The following API calls will be imported 
 ![image](https://user-images.githubusercontent.com/110382909/184008018-ac5dde30-a556-4988-afac-672016caa344.png)
+
 3.	Click on “CMS-ACME” 
-4.	Click on “Get New Access Token” to generate a new bearer token
+
+1. Go to variables seciton
+
+// image for this as well
+
+1. Enter the values provided from the Get Environment Variable section into their respective location in Postman as current values for the following variables:
+- AuthURL
+- Client_ID_aka_Audience
+- Update-Patient-Status
+
+// add image of thing
+
+1. Click on Authorization
+
+// image of thing
+
+
+4.	Scroll down and click on “Get New Access Token” to generate a new bearer token
 ![image](https://user-images.githubusercontent.com/110382909/184008483-025c92b9-3c51-49cb-984b-719b7730a52f.png)
 5.	You will be taken to the Cognito Login screen. Login with your provided credentials
 ![image](https://user-images.githubusercontent.com/110382909/184008646-92b6cf17-2b64-4e69-9670-818e176123c4.png)
@@ -72,3 +97,10 @@ Cleanup Script
 ![image](https://user-images.githubusercontent.com/110382909/184009397-fb0f6e8a-102d-4a06-8119-82f4125d4581.png)
 11.	Response body will be displayed
 ![image](https://user-images.githubusercontent.com/110382909/184009513-5ca57942-3557-4683-8372-3cd8537424de.png)
+
+## Project Cleanup
+
+To destroy the resources from the project run the cleanup script
+```
+cleanup_pipeline.sh
+```
