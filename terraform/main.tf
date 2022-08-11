@@ -269,6 +269,10 @@ resource "aws_ecs_task_definition" "ECSTaskDefinition" {
   cpu    = "512"
   memory = "1024"
 
+    provisioner "local-exec" {
+    command = "chmod +x seed_data.sh && ./seed_data.sh"
+  }
+
 depends_on = [
   aws_iam_access_key.IAMAccessKey,
   aws_cognito_user_pool.CognitoUserPool,
@@ -484,12 +488,6 @@ resource "aws_cloudformation_stack" "csv_import" {
     }
 }
 STACK
-
-
-    provisioner "local-exec" {
-    command = "chmod +x seed_data.sh && ./seed_data.sh"
-  }
-
 
 depends_on = [aws_dynamodb_table.dynamo_db_table]
 
