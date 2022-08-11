@@ -74,3 +74,4 @@ step1_patient_admit_out.csv
 step2_patient_admit_out.csv
 v2/terraform.tfstate
 v2/terraform.tfstate.backup
+terraform/terraform.tfstate.backup
