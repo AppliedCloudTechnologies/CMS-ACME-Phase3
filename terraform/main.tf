@@ -269,10 +269,6 @@ resource "aws_ecs_task_definition" "ECSTaskDefinition" {
   cpu    = "512"
   memory = "1024"
 
-    provisioner "local-exec" {
-    command = "chmod +x seed_data.sh && ./seed_data.sh"
-  }
-
 depends_on = [
   aws_iam_access_key.IAMAccessKey,
   aws_cognito_user_pool.CognitoUserPool,
@@ -554,6 +550,12 @@ resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
     target_group_arn = aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4.id
     type             = "forward"
   }
+
+depends_on = [
+  aws_lb.ElasticLoadBalancingV2LoadBalancer,
+  aws_lb_target_group.ElasticLoadBalancingV2TargetGroup4
+]
+  
 }
 
 resource "aws_default_route_table" "default_route_table_cms" {
@@ -566,7 +568,7 @@ resource "aws_default_route_table" "default_route_table_cms" {
 }
 
 resource "random_password" "password" {
-  length           = 16
+  length           = 60
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
