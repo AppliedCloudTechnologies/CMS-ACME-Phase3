@@ -3,45 +3,47 @@
 ## Prerequisites
 - Ensure you have an AWS instance and are working within the us-east-1 region.
 - Create a new policy in IAM
-- add json policy from `/path` as the whatever
-- In your EC2 instance, ensure it has access to the internet and a Public IPv4 address and attache role created to instance.
+- add json policy from `/`
+- Insure your EC2 instance has access to the internet and a Public IPv4 address and attach the role created to the EC2 instance.
 
 ## Installation
-- Ensure yum packages are up to date
+Within your EC2 instance do the following to install the project:
+
+Ensure yum packages are up to date
   ```
   sudo yum -y update
   ```
-- Install git if its not already installed
+Install git if its not already installed
   ```
   sudo yum -y install git
   ```
-- Clone down the repo
+Clone the repo
   ```
   git clone https://github.com/AppliedCloudTechnologies/CMS-ACME-Phase3.git
   ```
-- Change into project
+Change into project
   ```
-  cd CMS-ACME-Phase3/
+  cd CMS-ACME-Phase3
   ```
-- Move into terraform directory 
+Move into terraform directory 
   ```
   cd terraform
   ```
-- Make scripts executable
+Make scripts executable
   ```
-  chmod 700 install_pipeline.sh
+  chmod 700 *
   ```
-- Initialize project setup
+Initialize project setup
   ```
   sh install_pipeline.sh
   ```
-- Seed patient data
+Seed patient data
   ```
   sh seed_data.sh
   ```
 
 
-## Get Environment Variable
+## Get Environment Variables
 Run the following command to view environment variables needed for API testing
 
 ```
@@ -51,56 +53,85 @@ clear && terraform output && echo "########" && echo "User Password:" && terrafo
 You should be presented with values needed to test the api in postman.
  
 ## ACME API TESTING
-Once you have deployed your solution you can test the user flow and api endpoints, we would suggest using postman to test the api functionality. Postman is an API platform for building and using APIs. [postman](https://postman.com) You can test the api functionality in postman by following the instructions below.
-
-// add screenshots and import raw url: https://raw.githubusercontent.com/AppliedCloudTechnologies/CMS-ACME-Phase3/main/CMS-ACME.postman_collection_v1.json
+Once you have deployed your solution you can test the user flow and api endpoints, we would suggest using postman to test the api functionality. [Postman](https://postman.com) is an API platform for building and using APIs. You can test the api functionality in postman by following these instructions:
 
 
- 1. Import collection or API data provided for you at [/CMS-ACME.postman_collection_v1.json](https://raw.githubusercontent.com/AppliedCloudTechnologies/CMS-ACME-Phase3/main/CMS-ACME.postman_collection_v1.json) 
+In Postman, select to Import new collection
 
-   ![image](https://user-images.githubusercontent.com/110382909/184006628-dc6f22ee-5cd4-4c4e-842c-f9b60a5ae772.png)
+<img width="700" alt="Screen Shot 2022-08-11 at 4 28 24 PM" src="https://user-images.githubusercontent.com/3784116/184259501-301d82d3-9bbb-4240-a4dd-5eaeaa581670.png">
 
-2.	The following API calls will be imported 
-![image](https://user-images.githubusercontent.com/110382909/184008018-ac5dde30-a556-4988-afac-672016caa344.png)
+Select `Link` as the import option
 
-3.	Click on “CMS-ACME” 
+<img width="658" alt="Screen Shot 2022-08-11 at 4 28 53 PM" src="https://user-images.githubusercontent.com/3784116/184259617-f3c8fd83-790b-4540-9b27-0361f783a09d.png">
 
-1. Go to variables seciton
+Enter the following url in the space provided and click `Continue`
+`https://raw.githubusercontent.com/AppliedCloudTechnologies/CMS-ACME-Phase3/main/CMS-ACME.postman_collection_v1.json`
 
-// image for this as well
+Click on `CMS-ACME`
 
-1. Enter the values provided from the Get Environment Variable section into their respective location in Postman as current values for the following variables:
+<img width="484" alt="Screen Shot 2022-08-11 at 5 36 22 PM" src="https://user-images.githubusercontent.com/3784116/184259729-a964cb68-1446-4304-9921-3b87de01e4dc.png">
+
+Go to variables seciton
+
+<img width="728" alt="Screen Shot 2022-08-11 at 4 40 52 PM" src="https://user-images.githubusercontent.com/3784116/184260012-a6d69326-4f04-4ad9-b3d9-dcd5058ef55f.png">
+
+Enter the following variables from the result of the Get Environment Variables step in EC2 into their respective locations in Postman as current values
 - AuthURL
 - Client_ID_aka_Audience
 - Update-Patient-Status
 
-// add image of thing
+<img width="641" alt="image" src="https://user-images.githubusercontent.com/3784116/184260651-3ddb340c-c358-46bb-a68f-383398865785.png">
 
-1. Click on Authorization
+Click `Save`
 
-// image of thing
+<img width="707" alt="Screen Shot 2022-08-11 at 5 48 22 PM" src="https://user-images.githubusercontent.com/3784116/184260793-2c2b0c41-e0c7-4609-8d35-bec504ed8fbd.png">
 
+Click on `Authorization`
 
-4.	Scroll down and click on “Get New Access Token” to generate a new bearer token
+<img width="605" alt="Screen Shot 2022-08-11 at 4 57 02 PM" src="https://user-images.githubusercontent.com/3784116/184260863-5d7a3402-4665-4092-a7f6-6a0824e82d68.png">
+
+Scroll down and click on `Get New Access Token`
+
 ![image](https://user-images.githubusercontent.com/110382909/184008483-025c92b9-3c51-49cb-984b-719b7730a52f.png)
-5.	You will be taken to the Cognito Login screen. Login with your provided credentials
+
+You will be taken to the Cognito Login screen. Login with the Username and User Password provided from the result of the Get Environment Variables step in EC2
+
 ![image](https://user-images.githubusercontent.com/110382909/184008646-92b6cf17-2b64-4e69-9670-818e176123c4.png)
-6.	Click on proceed to access the token_id
+
+Click on proceed to access the token_id
+
 ![image](https://user-images.githubusercontent.com/110382909/184008809-1866d7a3-d279-4fda-8411-53a6fe63dd55.png)
-7.	Copy id_token to clipboard
-![image](https://user-images.githubusercontent.com/110382909/184008934-e08f59b9-e752-4e4f-abc8-5d230dd95414.png)
-8.	Select “Update Patient Status”
-![image](https://user-images.githubusercontent.com/110382909/184009040-553f8273-315a-4e80-ac7f-3dc89666630a.png)
-9.	Select “Authorization” and copy the bearer token.
-![image](https://user-images.githubusercontent.com/110382909/184009177-d70401bc-a01c-43b2-b2a2-9c9ef2d1ceb0.png)
-10.	Click on “Body” and then “Send” button to send the request.
+
+Scroll down and copy `id_token` to clipboard
+
+<img width="464" alt="Screen Shot 2022-08-11 at 5 09 43 PM" src="https://user-images.githubusercontent.com/3784116/184261246-6153acce-5993-4412-8412-f2af207d0525.png">
+
+Go back to Variables section and paste in the `id_token` as the BearerToken
+
+<img width="474" alt="Screen Shot 2022-08-11 at 5 10 25 PM" src="https://user-images.githubusercontent.com/3784116/184261324-71617530-8477-4db2-a39d-abff633b89ee.png">
+
+Click `Save`
+
+<img width="707" alt="Screen Shot 2022-08-11 at 5 48 22 PM" src="https://user-images.githubusercontent.com/3784116/184260793-2c2b0c41-e0c7-4609-8d35-bec504ed8fbd.png">
+
+Select `Update Patient Status`
+
+<img width="427" alt="Screen Shot 2022-08-11 at 6 01 10 PM" src="https://user-images.githubusercontent.com/3784116/184261800-3fd5f1f4-05a0-4285-aadb-0b5b5a0669b4.png">
+
+Click on `Body` and then `Send` button to send the request.
+
 ![image](https://user-images.githubusercontent.com/110382909/184009397-fb0f6e8a-102d-4a06-8119-82f4125d4581.png)
-11.	Response body will be displayed
+
+Response body will be displayed
+
 ![image](https://user-images.githubusercontent.com/110382909/184009513-5ca57942-3557-4683-8372-3cd8537424de.png)
+
+Updates can be made to the patient status by making these requests with different values in the reguest body. 
+Keep in mind that your user is only able to update the status for patients that are related to your users provider otherwise the API will return an error.
 
 ## Project Cleanup
 
-To destroy the resources from the project run the cleanup script
+To destroy the resources created from installing from the project run the cleanup script
 ```
 cleanup_pipeline.sh
 ```
