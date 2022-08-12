@@ -92,13 +92,10 @@ resource "aws_subnet" "EC2Subnet2" {
 resource "aws_lb" "ElasticLoadBalancingV2LoadBalancer" {
   name               = "alb-cms-service${random_id.id.hex}"
   internal           = false
-  load_balancer_type = "application"
+  load_balancer_type = "network"
   subnets = [
     aws_subnet.EC2Subnet.id,
     aws_subnet.EC2Subnet2.id
-  ]
-  security_groups = [
-    "${aws_security_group.temp_sg.id}"
   ]
   ip_address_type = "ipv4"
   access_logs {
