@@ -2,9 +2,37 @@
 
 ## Prerequisites
 - Ensure you have an AWS instance and are working within the us-east-1 region.
-- Create a new policy in IAM
-- add json policy from `/`
-- Insure your EC2 instance has access to the internet and a Public IPv4 address and attach the role created to the EC2 instance.
+
+#### Create the IAM Policy
+- While already being logged into the AWS Console Go to:
+  - https://us-east-1.console.aws.amazon.com/iam/home#/policies$new?step=edit
+- Select the JSON tab, and delete everything that is in the JSON document
+- In a new browser tab go to:
+- - https://raw.githubusercontent.com/AppliedCloudTechnologies/CMS-ACME-Phase3/main/cmsAcmeTechCallengeIamPolicyForEC2InstanceProfileRole.json
+- On the recently opened tab, "Select All" and "Copy"
+- Return to the tab with the AWS Console, and "Paste" into the blank JSON document
+- Select "Next: Tags"
+- Enter Name in the Key field and cmsAcmeTechCallengeIamPolicyForEC2InstanceProfileRole in the Value field
+- Select "Next: Review"
+- Enter cmsAcmeTechCallengeIamPolicyForEC2InstanceProfileRole in the Name field
+- Select "Create Policy"
+
+#### Create the IAM Role
+- While already being logged into the AWS Console Go to:
+  - https://us-east-1.console.aws.amazon.com/iamv2/home#/roles/create?commonUseCase=EC2&step=addPermission&trustedEntityType=AWS_SERVICE
+- Search for cmsAcmeTechCallengeIamPolicyForEC2InstanceProfileRole and tick the checkbox to the left of the policy
+- Select "Next"
+- For Role Name field, enter cmsAcmeTechCallengeIamEC2InstanceProfileRole
+- Select "Add tag"
+- Enter Name in the Key field and cmsAcmeTechCallengeIamEC2InstanceProfileRole in the Value field
+- "Select role"
+
+#### Attach the Role to your EC2
+- While already being logged into the AWS Console Go to:
+  - https://us-east-1.console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:v=3
+- Tick the checkbox to the left of the ec2 you want to attach the role for deployment
+- Select the "Actions" dropdown, then select "Security", then select "Modify IAM Role"
+- Select cmsAcmeTechCallengeIamEC2InstanceProfileRole from the dropdown and select "Update IAM role"
 
 ## Installation
 Within your EC2 instance do the following to install the project:
