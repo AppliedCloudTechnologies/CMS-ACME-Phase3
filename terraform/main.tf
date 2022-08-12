@@ -536,7 +536,7 @@ resource "aws_security_group" "temp_sg" {
 }
 
 resource "aws_ecr_repository" "ECRRepository" {
-  name = "cms-acme${random_id.id.hex}"
+  name = "cms-acme"
   force_delete = true
 }
 
