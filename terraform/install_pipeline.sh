@@ -16,7 +16,9 @@ sudo systemctl enable docker
 sudo usermod -a -G docker ec2-user
 
 chmod +x seed_data.sh
+chmod +x install.sh
 chmod +x cleanup.sh
+
 cd ../cms-acme-api
 mvn clean compile jib:dockerBuild
 cd ../terraform

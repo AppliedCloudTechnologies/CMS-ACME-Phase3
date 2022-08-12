@@ -45,7 +45,7 @@ output "local_BucketName" {
 
 resource "aws_iam_user" "IAMUser" {
     path = "/"
-    name = "api"
+    name = "api${random_id.id.hex}"
 }
 
 resource "aws_iam_access_key" "IAMAccessKey" {
@@ -83,7 +83,7 @@ resource "aws_subnet" "EC2Subnet2" {
 }
 
 resource "aws_lb" "ElasticLoadBalancingV2LoadBalancer" {
-  name               = "alb-cms-service"
+  name               = "alb-cms-service${random_id.id.hex}"
   internal           = false
   load_balancer_type = "application"
   subnets = [
@@ -176,7 +176,7 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup" {
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = aws_vpc.EC2VPC.id
-  name        = "temp-cms-target-group"
+  name        = "tg1${random_id.id.hex}"
 }
 
 resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup2" {
@@ -194,7 +194,7 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup2" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.EC2VPC.id
-  name        = "ecs-cms-ac-cmsacmeservice"
+  name        = "tg2${random_id.id.hex}"
 }
 
 resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup3" {
@@ -212,7 +212,7 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup3" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.EC2VPC.id
-  name        = "ecs-cms-ac-cms-acme-service"
+  name        = "tg3${random_id.id.hex}"
 }
 
 resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup4" {
@@ -230,7 +230,7 @@ resource "aws_lb_target_group" "ElasticLoadBalancingV2TargetGroup4" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.EC2VPC.id
-  name        = "cms-amce-tg-port"
+  name        = "tg4${random_id.id.hex}"
 }
 
 resource "aws_ecs_service" "ECSService" {
@@ -285,7 +285,7 @@ depends_on = [
 
 resource "aws_iam_role" "IAMRole" {
   path                 = "/"
-  name                 = "ecsTaskExecutionRole"
+  name                 = "ecsTaskExecutionRole${random_id.id.hex}"
   assume_role_policy   = "{\"Version\":\"2008-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ecs-tasks.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
   max_session_duration = 3600
 
@@ -536,7 +536,7 @@ resource "aws_security_group" "temp_sg" {
 }
 
 resource "aws_ecr_repository" "ECRRepository" {
-  name = "cms-acme"
+  name = "cms-acme${random_id.id.hex}"
   force_delete = true
 
     provisioner "local-exec" {
