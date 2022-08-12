@@ -538,12 +538,6 @@ resource "aws_security_group" "temp_sg" {
 resource "aws_ecr_repository" "ECRRepository" {
   name = "cms-acme${random_id.id.hex}"
   force_delete = true
-
-    provisioner "local-exec" {
-    working_dir = "../cms-acme-api"
-    command = "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com && docker tag cms-acme:v1 ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1 && docker push ${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/cms-acme:v1"
-  }
-
 }
 
 resource "aws_lb_listener" "ElasticLoadBalancingV2Listener" {
