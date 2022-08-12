@@ -9,6 +9,13 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
+
+    default_tags {
+    tags = {
+      Environment = "TechChallenge"
+      Owner       = "Winners"
+    }
+  }
 }
 
 data "aws_caller_identity" "current" {}
